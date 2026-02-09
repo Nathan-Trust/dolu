@@ -1,0 +1,45 @@
+export type UserRole = "chairman" | "admin" | "staff" | "realtor";
+
+export interface RoleConfig {
+  label: string;
+  bgColor: string;
+  textColor: string;
+  description: string;
+}
+
+export const roleConfigs: Record<UserRole, RoleConfig> = {
+  chairman: {
+    label: "Chairman",
+    bgColor: "#FFFEC0",
+    textColor: "#AC7F5E",
+    description:
+      "You have read-only access to performance, sales, and financial summaries.",
+  },
+  admin: {
+    label: "Admin",
+    bgColor: "#D9EDFF",
+    textColor: "#0088FF",
+    description: "You manage users, operations, and system settings.",
+  },
+  staff: {
+    label: "Staff",
+    bgColor: "#DDF6E2",
+    textColor: "#34C759",
+    description:
+      "You are responsible for client management, reporting, and sales tracking.",
+  },
+  realtor: {
+    label: "Realtor",
+    bgColor: "#F2DDF6",
+    textColor: "#CB30E0",
+    description: "You can submit deals and track your activity.",
+  },
+};
+
+export function getRoleConfig(role: UserRole): RoleConfig {
+  return roleConfigs[role];
+}
+
+export function isValidRole(role: string): role is UserRole {
+  return ["chairman", "admin", "staff", "realtor"].includes(role);
+}
