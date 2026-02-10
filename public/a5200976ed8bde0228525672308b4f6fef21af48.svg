@@ -1,0 +1,29 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 630.513 191" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Group 2608933">
+<g id="Frame 18" clip-path="url(#clip0_24_27398)">
+<g id="Rectangle 4">
+</g>
+<g id="Group 2608932">
+<path id="Intersect" d="M840.202 223C840.202 227.418 836.621 231 832.202 231H1.56174C-2.85653 231 -6.43826 227.418 -6.43826 223V183.625L103.423 152.738L219.74 89.5225L219.92 89.4258L220.118 89.4697L340.4 116.311L456.017 106.545L602.222 70.1699L602.26 70.1611L602.298 70.1572L826.88 47.3525L837.351 44.1104L837.364 44.1064L837.511 44.6289L837.364 44.1064L840.202 43.3076V223Z" fill="url(#paint0_linear_24_27398)" fill-opacity="0.6"/>
+<path id="Vector 5" d="M-20 250V187.003L103.629 152.245L219.5 88.5L340.365 115.859L456.103 106.084L602.353 69.6971L826.989 46.8877L837.511 43.6292L843.298 42L846.454 250H-20Z" stroke="var(--stroke-0, #8A38F5)" style="stroke:#8A38F5;stroke:color(display-p3 0.5412 0.2196 0.9608);stroke-opacity:1;" stroke-width="2" stroke-linecap="round"/>
+</g>
+</g>
+<g id="Frame 17" clip-path="url(#clip1_24_27398)">
+<g id="Rectangle 4_2">
+</g>
+</g>
+<path id="Ellipse 7" d="M626.967 63.75C628.787 63.7502 630.263 65.2264 630.263 67.0469C630.263 68.8672 628.787 70.3426 626.967 70.3428C625.146 70.3428 623.67 68.8673 623.67 67.0469C623.67 65.2263 625.146 63.75 626.967 63.75Z" fill="var(--fill-0, #8A38F5)" stroke="var(--stroke-0, #E0E0E0)" style="fill:#8A38F5;fill:color(display-p3 0.5412 0.2196 0.9608);fill-opacity:1;stroke:#E0E0E0;stroke:color(display-p3 0.8772 0.8772 0.8772);stroke-opacity:1;" stroke-width="0.5"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_24_27398" x1="403.805" y1="-112.5" x2="401.74" y2="252.499" gradientUnits="userSpaceOnUse">
+<stop stop-color="#8A38F5" style="stop-color:#8A38F5;stop-color:color(display-p3 0.5412 0.2196 0.9608);stop-opacity:1;"/>
+<stop offset="0.990385" stop-color="#8A38F5" stop-opacity="0.1" style="stop-color:#8A38F5;stop-color:color(display-p3 0.5412 0.2196 0.9608);stop-opacity:0.1;"/>
+</linearGradient>
+<clipPath id="clip0_24_27398">
+<rect width="627.408" height="152" fill="white" style="fill:white;fill-opacity:1;" transform="translate(0 39)"/>
+</clipPath>
+<clipPath id="clip1_24_27398">
+<rect width="627.317" height="191" fill="white" style="fill:white;fill-opacity:1;"/>
+</clipPath>
+</defs>
+</svg>

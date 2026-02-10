@@ -285,7 +285,7 @@ const CustomMultiSelectFilter: React.FC<CustomMultiSelectFilterProps> = ({
                 <div className="text-center py-8 text-gray-8">
                   <Search className="h-8 w-8 mx-auto mb-2 text-gray-11" />
                   <p className="text-sm">
-                    No results found for "{searchQuery}"
+                    No results found for &quot;{searchQuery}&quot;
                   </p>
                   <p className="text-xs text-gray-12 mt-1">
                     Try adjusting your search terms
@@ -514,7 +514,7 @@ const CustomMultiSelectFilter: React.FC<CustomMultiSelectFilterProps> = ({
                       <div className="text-center py-8 text-gray-500">
                         <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                         <p className="text-sm">
-                          No results found for "{searchQuery}"
+                          No results found for &quot;{searchQuery}&quot;
                         </p>
                         <p className="text-xs text-gray-400 mt-1">
                           Try adjusting your search terms

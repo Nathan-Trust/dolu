@@ -28,8 +28,7 @@ export default function RoleConfirmationPage({
   const userName = "Sim Tommy";
 
   const handleProceed = () => {
-    // TODO: Navigate to appropriate dashboard based on role
-    router.push("/dashboard");
+    router.push(`/dashboard/${validRole}/overview`);
   };
 
   return (
