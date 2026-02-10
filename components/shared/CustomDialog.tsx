@@ -19,6 +19,7 @@ interface CustomDialogProps {
   open?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
   disabled?: boolean; // Add disabled prop here
+  showTrigger?: boolean;
 }
 
 const CustomDialog = ({
@@ -31,19 +32,22 @@ const CustomDialog = ({
   onOpenChange,
   contentClassName = "",
   disabled = false, // Default to false if not provided
+  showTrigger = true,
 }: CustomDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger
-        className={cn("px-0 outline-none", className)}
-        disabled={disabled}
-      >
-        {typeof triggerComponent === "string" ? (
-          <button disabled={disabled}>{triggerComponent}</button>
-        ) : (
-          triggerComponent
-        )}
-      </DialogTrigger>
+      {showTrigger && (
+        <DialogTrigger
+          className={cn("px-0 outline-none", className)}
+          disabled={disabled}
+        >
+          {typeof triggerComponent === "string" ? (
+            <button disabled={disabled}>{triggerComponent}</button>
+          ) : (
+            triggerComponent
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent
         className={cn(
           "bg-colorAuthBgColor BgColor shadow-[1px_3px_18px_rgba(0,0,0,0.06)] w-[350px] md:w-full",

@@ -17,6 +17,7 @@ interface CustomSheetProps {
   className?: string;
   active?: boolean;
   setActive?: (newState: boolean) => void;
+  showTrigger?: boolean;
 }
 
 const CustomSheet: React.FC<CustomSheetProps> = ({
@@ -27,6 +28,7 @@ const CustomSheet: React.FC<CustomSheetProps> = ({
   className = "",
   active = false,
   setActive,
+  showTrigger = true,
 }) => {
   // If `setActive` is not passed, use local state
   const [localActive, setLocalActive] = useState(active);
@@ -45,15 +47,17 @@ const CustomSheet: React.FC<CustomSheetProps> = ({
       open={setActive !== undefined ? active : localActive}
       onOpenChange={handleOpenChange}
     >
-      <SheetTrigger asChild>
-        {typeof triggerComponent === "string" ? (
-          <button onClick={() => handleOpenChange(!active)}>
-            {triggerComponent}
-          </button>
-        ) : (
-          triggerComponent
-        )}
-      </SheetTrigger>
+      {showTrigger && (
+        <SheetTrigger asChild>
+          {typeof triggerComponent === "string" ? (
+            <button onClick={() => handleOpenChange(!active)}>
+              {triggerComponent}
+            </button>
+          ) : (
+            triggerComponent
+          )}
+        </SheetTrigger>
+      )}
       <SheetContent
         forceMount
         onOpenAutoFocus={(e) => e.preventDefault()}

@@ -191,7 +191,7 @@ function EstateDetailDialog({
     <CustomDialog
       open={open}
       onOpenChange={onOpenChange}
-      triggerComponent={<span className="hidden" />}
+      showTrigger={false}
       contentClassName="max-w-[760px] overflow-y-auto max-h-[90vh] rounded-2xl p-0"
     >
       <div className="flex flex-col">

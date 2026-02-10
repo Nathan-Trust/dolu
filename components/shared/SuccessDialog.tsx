@@ -74,7 +74,7 @@ export default function SuccessDialog({
     <CustomDialog
       open={open}
       onOpenChange={onOpenChange}
-      triggerComponent={<span />}
+      showTrigger={false}
       contentClassName="!w-[420px] !max-w-[420px] !p-0 !gap-0 !border-0 !bg-transparent !shadow-none"
     >
       <div className="relative flex flex-col items-center rounded-lg bg-[#f8f8f8] px-4 pt-4 pb-6">

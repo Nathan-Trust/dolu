@@ -120,6 +120,7 @@ export default function AddEstateSheet({
       description="Create a new client record"
       active={open}
       setActive={onOpenChange}
+      showTrigger={false}
       className="w-full sm:w-3/4 md:w-125 md:min-w-125"
     >
       <form

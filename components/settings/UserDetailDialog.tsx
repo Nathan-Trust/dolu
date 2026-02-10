@@ -92,6 +92,7 @@ export default function UserDetailDialog({
     <CustomDialog
       open={open}
       onOpenChange={onOpenChange}
+      showTrigger={false}
       contentClassName="max-w-lg bg-white p-6"
     >
       {/* Header: Avatar + Name + Role */}

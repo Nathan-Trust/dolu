@@ -290,7 +290,7 @@ export default function PersonDetailDialog({
     <CustomDialog
       open={open}
       onOpenChange={onOpenChange}
-      triggerComponent={<span />}
+      showTrigger={false}
       contentClassName="!w-full !max-w-[759px] !p-0 !gap-0 !border-0 !bg-transparent !shadow-none"
     >
       <div className="flex max-h-[80vh] flex-col gap-4 overflow-y-auto rounded-lg bg-[#f8f8f8] p-4">
