@@ -92,7 +92,7 @@ export default function UserDetailDialog({
     <CustomDialog
       open={open}
       onOpenChange={onOpenChange}
-      contentClassName="max-w-lg p-6"
+      contentClassName="max-w-lg bg-white p-6"
     >
       {/* Header: Avatar + Name + Role */}
       <div className="flex items-center gap-3">
