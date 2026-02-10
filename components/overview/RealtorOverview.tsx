@@ -121,7 +121,7 @@ export default function RealtorOverview({ role }: RealtorOverviewProps) {
       </div>
 
       {/* Metric cards row */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
         {/* Deals Submitted */}
         <div className="flex items-center justify-between rounded-lg bg-[#f8f8f8] p-4">
           <div className="flex flex-col gap-1">
@@ -183,7 +183,7 @@ export default function RealtorOverview({ role }: RealtorOverviewProps) {
             <input
               type="text"
               placeholder="Search"
-              className="w-[362px] bg-transparent font-montserrat text-sm font-normal text-[#0f0f0f] placeholder-[#6f6d6d] outline-none"
+              className="w-full max-w-90.5 bg-transparent font-montserrat text-sm font-normal text-[#0f0f0f] placeholder-[#6f6d6d] outline-none"
             />
           </div>
         }
@@ -192,7 +192,7 @@ export default function RealtorOverview({ role }: RealtorOverviewProps) {
             <span className="font-montserrat text-xs font-normal text-black">
               All
             </span>
-            <button className="flex w-[168px] items-center justify-center gap-1 rounded-lg bg-[#8a38f5] p-1 font-montserrat text-base font-bold text-[#f8f8f8] transition-colors hover:bg-[#8a38f5]/90">
+            <button className="flex w-auto items-center justify-center gap-1 rounded-lg bg-[#8a38f5] px-3 py-1 font-montserrat text-base font-bold text-[#f8f8f8] transition-colors hover:bg-[#8a38f5]/90">
               Submit Client
               <UserPlus className="size-6" />
             </button>
@@ -201,7 +201,7 @@ export default function RealtorOverview({ role }: RealtorOverviewProps) {
       />
 
       {/* Deal Status donut (left-aligned, standalone) */}
-      <div className="flex w-[421px] flex-col gap-12 rounded-lg bg-[#f8f8f8] p-2">
+      <div className="flex w-full max-w-105.25 flex-col gap-4 rounded-lg bg-[#f8f8f8] p-2 md:gap-12">
         <div className="flex items-center justify-between">
           <p className="font-montserrat text-sm font-bold text-[#0f0f0f]">
             Deal Status
@@ -210,8 +210,8 @@ export default function RealtorOverview({ role }: RealtorOverviewProps) {
             Jan
           </span>
         </div>
-        <div className="flex items-center justify-center gap-16">
-          <div className="relative size-[156px]">
+        <div className="flex items-center justify-center gap-4 md:gap-16">
+          <div className="relative size-39">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie

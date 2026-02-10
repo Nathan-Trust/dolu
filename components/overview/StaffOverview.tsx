@@ -138,7 +138,7 @@ export default function StaffOverview({ role }: StaffOverviewProps) {
       <OverviewHeader role={role} />
 
       {/* Metric cards row */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
         {/* Monthly Sales Target */}
         <div className="flex items-center justify-between rounded-lg bg-[#f8f8f8] p-4">
           <div className="flex flex-col gap-1">
@@ -201,9 +201,9 @@ export default function StaffOverview({ role }: StaffOverviewProps) {
       </div>
 
       {/* Weekly Report */}
-      <div className="flex items-center justify-between rounded bg-[#f8f8f8] p-4">
+      <div className="flex flex-col gap-4 rounded bg-[#f8f8f8] p-4 md:flex-row md:items-center md:justify-between md:gap-0">
         <div className="flex flex-1 flex-col gap-4">
-          <div className="flex items-center gap-8">
+          <div className="flex flex-wrap items-center gap-4 md:gap-8">
             <div className="flex items-end gap-4">
               <p className="font-montserrat text-base font-bold text-[#6f6d6d]">
                 Weekly Report
@@ -237,9 +237,9 @@ export default function StaffOverview({ role }: StaffOverviewProps) {
       </div>
 
       {/* Charts row */}
-      <div className="flex gap-6">
+      <div className="flex flex-col gap-6 md:flex-row">
         {/* My Sales Performance */}
-        <div className="flex w-[647px] flex-col gap-2 rounded-lg bg-[#f8f8f8] p-2">
+        <div className="flex w-full flex-col gap-2 rounded-lg bg-[#f8f8f8] p-2 md:flex-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 font-montserrat text-sm text-[#0f0f0f]">
               <span className="font-bold">My Sales Performance</span>
@@ -254,7 +254,7 @@ export default function StaffOverview({ role }: StaffOverviewProps) {
               onToggle={setChartToggle}
             />
           </div>
-          <div className="h-[210px] w-full">
+          <div className="h-52.5 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={salesPerformanceData}>
                 <defs>
@@ -313,7 +313,7 @@ export default function StaffOverview({ role }: StaffOverviewProps) {
         </div>
 
         {/* Deal Count donut */}
-        <div className="flex flex-1 flex-col gap-12 rounded-lg bg-[#f8f8f8] p-2">
+        <div className="flex flex-1 flex-col gap-4 rounded-lg bg-[#f8f8f8] p-2 md:gap-12">
           <div className="flex items-center justify-between">
             <p className="font-montserrat text-sm font-bold text-[#0f0f0f]">
               Deal Count
@@ -322,8 +322,8 @@ export default function StaffOverview({ role }: StaffOverviewProps) {
               Jan
             </span>
           </div>
-          <div className="flex items-center justify-center gap-16">
-            <div className="relative size-[156px]">
+          <div className="flex items-center justify-center gap-4 md:gap-16">
+            <div className="relative size-39">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -391,7 +391,7 @@ export default function StaffOverview({ role }: StaffOverviewProps) {
             <input
               type="text"
               placeholder="Search"
-              className="w-[362px] bg-transparent font-montserrat text-sm font-normal text-[#0f0f0f] placeholder-[#6f6d6d] outline-none"
+              className="w-full max-w-90.5 bg-transparent font-montserrat text-sm font-normal text-[#0f0f0f] placeholder-[#6f6d6d] outline-none"
             />
           </div>
         }

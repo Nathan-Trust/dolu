@@ -289,7 +289,7 @@ export default function AdminOverview({ role }: AdminOverviewProps) {
       <MetricCards cards={metricCards} />
 
       {/* ─── Quick Actions ───────────────────── */}
-      <div className="flex gap-8">
+      <div className="flex flex-wrap gap-2 md:gap-8">
         {quickActions.map((action) => (
           <button
             key={action.label}
@@ -304,9 +304,9 @@ export default function AdminOverview({ role }: AdminOverviewProps) {
       </div>
 
       {/* ─── Sales Contribution Chart + Alerts ─ */}
-      <div className="flex items-start justify-between gap-6">
+      <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
         {/* Sales Contribution Bar Chart */}
-        <div className="flex w-[740px] flex-col gap-2 rounded-lg bg-[#f8f8f8] p-2">
+        <div className="flex w-full flex-col gap-2 rounded-lg bg-[#f8f8f8] p-2 md:flex-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-[#0f0f0f]">
               <span className="font-montserrat font-bold">
@@ -429,9 +429,9 @@ export default function AdminOverview({ role }: AdminOverviewProps) {
       </div>
 
       {/* ─── Sales Trend + Reports Compliance ── */}
-      <div className="flex items-start gap-6">
+      <div className="flex flex-col gap-6 md:flex-row md:items-start">
         {/* Sales Trend */}
-        <div className="flex h-[281px] w-[647px] flex-col gap-2 rounded-lg bg-[#f8f8f8] p-2">
+        <div className="flex h-70 w-full flex-col gap-2 rounded-lg bg-[#f8f8f8] p-2 md:flex-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-[#0f0f0f]">
               <span className="font-montserrat font-bold">Sales Trend</span>
@@ -498,7 +498,7 @@ export default function AdminOverview({ role }: AdminOverviewProps) {
         </div>
 
         {/* Reports Compliance */}
-        <div className="flex h-[281px] flex-1 flex-col items-center gap-12 rounded-lg bg-[#f8f8f8] p-2">
+        <div className="flex h-70 flex-1 flex-col items-center gap-4 rounded-lg bg-[#f8f8f8] p-2 md:gap-12">
           <div className="flex w-full items-center justify-between">
             <span className="font-montserrat text-sm font-bold text-[#0f0f0f]">
               Reports Compliance
@@ -510,7 +510,7 @@ export default function AdminOverview({ role }: AdminOverviewProps) {
             />
           </div>
 
-          <div className="flex items-center gap-16">
+          <div className="flex items-center gap-4 md:gap-16">
             <ResponsiveContainer width={156} height={156}>
               <PieChart>
                 <Pie
@@ -567,8 +567,8 @@ export default function AdminOverview({ role }: AdminOverviewProps) {
 
       {/* ─── Sales Contribution Leaderboard ──── */}
       <div className="flex flex-col gap-2.5 rounded-lg bg-[#f8f8f8] p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-8">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-8">
             <p className="font-montserrat text-sm font-bold text-[#0f0f0f]">
               Sales Contribution
             </p>
@@ -577,7 +577,7 @@ export default function AdminOverview({ role }: AdminOverviewProps) {
               <input
                 type="text"
                 placeholder="Search"
-                className="w-[362px] bg-transparent font-montserrat text-sm font-normal text-[#0f0f0f] placeholder-[#6f6d6d] outline-none"
+                className="w-full max-w-90.5 bg-transparent font-montserrat text-sm font-normal text-[#0f0f0f] placeholder-[#6f6d6d] outline-none"
               />
             </div>
           </div>
@@ -593,8 +593,10 @@ export default function AdminOverview({ role }: AdminOverviewProps) {
           </div>
         </div>
 
+        {/* Scrollable table area */}
+        <div className="overflow-x-auto">
         {/* Table header */}
-        <div className="grid grid-cols-[80px_1fr_1fr_1fr_1fr] items-center rounded px-1 py-2 font-montserrat text-sm font-bold text-[#0f0f0f]">
+        <div className="grid min-w-125 grid-cols-[64px_1fr_1fr_1fr_1fr] items-center rounded px-1 py-2 font-montserrat text-sm font-bold text-[#0f0f0f]">
           <span>Position</span>
           <span>Name</span>
           <span>Sales</span>
@@ -605,7 +607,7 @@ export default function AdminOverview({ role }: AdminOverviewProps) {
         {/* Table rows */}
         {salesLeaderboard.map((row, idx) => (
           <div key={row.position}>
-            <div className="grid grid-cols-[80px_1fr_1fr_1fr_1fr] items-center rounded px-1 py-1">
+            <div className="grid min-w-125 grid-cols-[64px_1fr_1fr_1fr_1fr] items-center rounded px-1 py-1">
               <PositionBadge position={row.position} />
               <div className="flex items-center gap-1">
                 <div className="flex size-4 items-center justify-center rounded-full bg-gray-300">
@@ -632,6 +634,7 @@ export default function AdminOverview({ role }: AdminOverviewProps) {
             )}
           </div>
         ))}
+        </div>
       </div>
 
       {/* ─── Priority List Table ─────────────── */}
@@ -643,7 +646,7 @@ export default function AdminOverview({ role }: AdminOverviewProps) {
             <input
               type="text"
               placeholder="Search"
-              className="w-[362px] bg-transparent font-montserrat text-sm font-normal text-[#0f0f0f] placeholder-[#6f6d6d] outline-none"
+              className="w-full max-w-90.5 bg-transparent font-montserrat text-sm font-normal text-[#0f0f0f] placeholder-[#6f6d6d] outline-none"
             />
           </div>
         }

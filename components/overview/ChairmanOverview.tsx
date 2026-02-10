@@ -136,7 +136,7 @@ export default function ChairmanOverview({ role }: ChairmanOverviewProps) {
       <MetricCards cards={metricCards} />
 
       {/* ─── Charts Row ──────────────────────── */}
-      <div className="grid grid-cols-[1.5fr_1fr] gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-[1.5fr_1fr]">
         {/* Sales Trend */}
         <div className="flex flex-col gap-2 rounded-lg bg-[#f8f8f8] p-2">
           <div className="flex items-center justify-between">
@@ -209,7 +209,7 @@ export default function ChairmanOverview({ role }: ChairmanOverviewProps) {
             />
           </div>
 
-          <div className="flex items-center justify-center gap-16">
+          <div className="flex items-center justify-center gap-4 md:gap-16">
             <ResponsiveContainer width={156} height={156}>
               <PieChart>
                 <Pie
@@ -258,7 +258,7 @@ export default function ChairmanOverview({ role }: ChairmanOverviewProps) {
             <input
               type="text"
               placeholder="Find Report"
-              className="w-[362px] bg-transparent font-montserrat text-sm font-normal text-[#0f0f0f] placeholder-[#6f6d6d] outline-none"
+              className="w-full max-w-90.5 bg-transparent font-montserrat text-sm font-normal text-[#0f0f0f] placeholder-[#6f6d6d] outline-none"
             />
           </div>
         }

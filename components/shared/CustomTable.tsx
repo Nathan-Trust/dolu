@@ -207,8 +207,8 @@ const CustomTable = <T extends TableRowData>({
     <div className="w-full overflow-hidden rounded-lg bg-[#f8f8f8] p-4">
       {/* Optional title bar */}
       {(title || searchSlot || headerRight) && (
-        <div className="mb-2.5 flex items-center justify-between">
-          <div className="flex items-center gap-8">
+        <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-4 md:gap-8">
             {title && (
               <p className="font-montserrat text-sm font-bold text-[#0f0f0f]">
                 {title}

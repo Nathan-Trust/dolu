@@ -52,7 +52,7 @@ function SettingRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between border-b border-[#e0e0e0] py-4 last:border-b-0">
+    <div className="flex flex-col gap-3 border-b border-[#e0e0e0] py-4 last:border-b-0 md:flex-row md:items-center md:justify-between md:gap-0">
       <div className="flex flex-col gap-0.5">
         <p className="font-montserrat text-sm font-bold text-[#0f0f0f]">
           {title}

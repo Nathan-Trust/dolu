@@ -52,12 +52,12 @@ export default function SettingsClient({ role }: SettingsClientProps) {
       </div>
 
       {/* Sub-tab navigation */}
-      <div className="flex gap-4 border-b border-[#e0e0e0]">
+      <div className="flex gap-4 overflow-x-auto border-b border-[#e0e0e0]">
         {allSubTabs.map((tab) => (
           <button
             key={tab.slug}
             onClick={() => setActiveTab(tab.slug)}
-            className={`pb-2 font-montserrat text-sm transition-colors ${
+            className={`shrink-0 whitespace-nowrap pb-2 font-montserrat text-sm transition-colors ${
               activeSlug === tab.slug
                 ? "border-b-2 border-[#8a38f5] font-bold text-[#8a38f5]"
                 : "font-normal text-[#6f6d6d] hover:text-[#0f0f0f]"

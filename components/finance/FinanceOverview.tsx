@@ -194,7 +194,7 @@ export default function FinanceOverview() {
   return (
     <div className="flex flex-col gap-8">
       {/* ── Top metric cards ── */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
         {financeSummary.map((m) => (
           <div
             key={m.label}
@@ -221,7 +221,7 @@ export default function FinanceOverview() {
         <p className="font-montserrat text-sm font-bold text-black">
           Outstanding Snapshot
         </p>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
           {outstandingSnapshot.map((m) => (
             <div
               key={m.label}

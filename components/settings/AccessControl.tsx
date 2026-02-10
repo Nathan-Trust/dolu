@@ -119,7 +119,7 @@ function RolePermissionTable({
   onToggle: (mod: Module, perm: Permission) => void;
 }) {
   return (
-    <div className="overflow-hidden rounded-lg bg-[#f8f8f8]">
+    <div className="overflow-x-auto rounded-lg bg-[#f8f8f8]">
       <Table>
         <TableHeader>
           <TableRow className="border-none">
