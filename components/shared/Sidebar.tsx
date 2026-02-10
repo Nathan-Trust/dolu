@@ -20,6 +20,8 @@ import { type UserRole } from "@/util/status";
 
 interface SidebarProps {
   role: UserRole;
+  /** Called after a navigation action — used to close the mobile sheet */
+  onNavigate?: () => void;
 }
 
 interface MenuItem {
@@ -70,7 +72,7 @@ const getMenuItems = (role: UserRole): MenuItem[] => [
   { icon: Settings, label: "Settings", href: `/dashboard/${role}/settings` },
 ];
 
-export default function Sidebar({ role }: SidebarProps) {
+export default function Sidebar({ role, onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const menuItems = getMenuItems(role);
@@ -99,10 +101,10 @@ export default function Sidebar({ role }: SidebarProps) {
   };
 
   return (
-    <aside className="flex h-full w-[263px] flex-col gap-16 bg-black py-8">
+    <aside className="flex h-full w-65.75 flex-col gap-16 bg-black py-8">
       {/* Logo */}
       <div className="flex justify-center">
-        <div className="relative h-12 w-[98px]">
+        <div className="relative h-12 w-24.5">
           <Image
             src="/ca02524960676ea485d89a4976f63978296ff29e.svg"
             alt="Dolu Logo"
@@ -129,6 +131,7 @@ export default function Sidebar({ role }: SidebarProps) {
                       toggleExpand(item.label);
                     } else if (item.href) {
                       router.push(item.href);
+                      onNavigate?.();
                     }
                   }}
                   className={`flex items-center justify-between rounded-l p-1 transition-colors ${
@@ -171,7 +174,10 @@ export default function Sidebar({ role }: SidebarProps) {
                       return (
                         <button
                           key={subItem.label}
-                          onClick={() => router.push(subItem.href)}
+                          onClick={() => {
+                            router.push(subItem.href);
+                            onNavigate?.();
+                          }}
                           className={`text-left font-montserrat ${
                             isSubActive
                               ? "font-bold text-[#9e76f8]"
@@ -210,7 +216,10 @@ export default function Sidebar({ role }: SidebarProps) {
           </div>
 
           {/* Log out */}
-          <button className="flex items-center gap-1 rounded-l p-1 hover:bg-white/5">
+          <button
+            onClick={() => router.push("/sign-in")}
+            className="flex items-center gap-1 rounded-l p-1 hover:bg-white/5"
+          >
             <LogOut className="size-6 text-[#f3f3f3]" />
             <span className="font-montserrat text-base font-normal text-[#f3f3f3]">
               Log Out

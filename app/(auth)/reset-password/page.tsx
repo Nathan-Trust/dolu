@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
@@ -23,6 +24,7 @@ export default function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -39,8 +41,9 @@ export default function ResetPasswordPage() {
   });
 
   const onSubmit = async (data: FirstTimeResetPasswordFormValues) => {
-    // TODO: Implement reset password logic
     console.log("Reset password data:", data);
+    // Simulate: navigate to role-confirmation (default: chairman)
+    router.push("/role-confirmation/chairman");
   };
 
   return (
@@ -156,7 +159,7 @@ export default function ResetPasswordPage() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-[124px] rounded-lg bg-[#8a38f5] px-4 py-2 text-sm font-bold text-[#f8f8f8] hover:bg-[#8a38f5]/90"
+            className="w-31 rounded-lg bg-[#8a38f5] px-4 py-2 text-sm font-bold text-[#f8f8f8] hover:bg-[#8a38f5]/90"
           >
             {isSubmitting ? "Processing..." : "Proceed"}
           </Button>

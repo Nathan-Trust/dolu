@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
@@ -18,6 +19,7 @@ import {
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -33,8 +35,9 @@ export default function SignInPage() {
   });
 
   const onSubmit = async (data: SignInFormValues) => {
-    // TODO: Implement sign-in logic
     console.log("Sign in data:", data);
+    // Simulate: navigate to 2FA page
+    router.push("/2fa");
   };
 
   return (
@@ -88,7 +91,7 @@ export default function SignInPage() {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-[124px] rounded-lg bg-[#8a38f5] px-4 py-2 text-sm font-bold text-[#f8f8f8] hover:bg-[#8a38f5]/90"
+          className="w-31 rounded-lg bg-[#8a38f5] px-4 py-2 text-sm font-bold text-[#f8f8f8] hover:bg-[#8a38f5]/90"
         >
           {isSubmitting ? "Signing in..." : "Sign in"}
         </Button>

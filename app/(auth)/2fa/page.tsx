@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
@@ -18,6 +19,7 @@ import {
 
 export default function TwoFactorAuthPage() {
   const [otp, setOtp] = useState("");
+  const router = useRouter();
 
   const {
     handleSubmit,
@@ -32,8 +34,9 @@ export default function TwoFactorAuthPage() {
   });
 
   const onSubmit = async (data: TwoFactorAuthFormValues) => {
-    // TODO: Implement 2FA verification logic
     console.log("2FA code:", data);
+    // Simulate: first-time user goes to reset-password
+    router.push("/reset-password");
   };
 
   const handleResendCode = () => {
@@ -105,14 +108,14 @@ export default function TwoFactorAuthPage() {
               type="button"
               variant="outline"
               onClick={handleResendCode}
-              className="w-[124px] rounded-lg border-0 bg-[#f2d5ff] px-4 py-2 text-sm font-bold text-[#8a38f5] hover:bg-[#f2d5ff]/80"
+              className="w-31 rounded-lg border-0 bg-[#f2d5ff] px-4 py-2 text-sm font-bold text-[#8a38f5] hover:bg-[#f2d5ff]/80"
             >
               Resend Code
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting || otp.length !== 5}
-              className="w-[124px] rounded-lg bg-[#8a38f5] px-4 py-2 text-sm font-bold text-[#f8f8f8] hover:bg-[#8a38f5]/90"
+              className="w-31 rounded-lg bg-[#8a38f5] px-4 py-2 text-sm font-bold text-[#f8f8f8] hover:bg-[#8a38f5]/90"
             >
               {isSubmitting ? "Verifying..." : "Proceed"}
             </Button>
