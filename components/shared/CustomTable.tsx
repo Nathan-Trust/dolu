@@ -80,26 +80,15 @@ export const extractText = (value: any): string => {
 export const isCurrencyLike = (value: any): boolean => {
   const text = extractText(value).trim();
   if (!text) return false;
-  const cleaned = text.replace(/^[₦$€£¥₹]/, "");
-  const match = cleaned.match(/^([A-Z]{3})?\s?(\d{1,3}(,\d{3})*|\d+)(\.\d+)?$/);
-  if (!match) return false;
-  const numericPart = match[2]?.replace(/,/g, "");
-  return !isNaN(Number(numericPart));
+  // Only treat as currency if it starts with a known currency symbol
+  return /^[₦$€£¥₹]/.test(text);
 };
 
-const isCurrencyColumn = (
-  keyPath: string,
-  data: TableRowData[] = [],
-): boolean => {
-  const sampleSize = Math.min(data.length, 5);
-  let currencyLikeCount = 0;
-  for (let i = 0; i < sampleSize; i++) {
-    const val = getNestedValue(data[i], keyPath);
-    if (isCurrencyLike(val)) {
-      currencyLikeCount++;
-    }
-  }
-  return currencyLikeCount >= Math.ceil(sampleSize / 2);
+const amountHeaderKeywords =
+  /amount|price|cost|total|balance|income|expense|fee|payment|salary|revenue|budget/i;
+
+const isAmountColumn = (header: string): boolean => {
+  return amountHeaderKeywords.test(header);
 };
 
 const CustomTable = <T extends TableRowData>({
@@ -147,12 +136,7 @@ const CustomTable = <T extends TableRowData>({
         </TableHead>
       )}
       {headers.map((header) => {
-        const keyPath = headerKeyMap[header];
-        const isCostCode = header
-          .toLowerCase()
-          .replace(/[_\s-]/g, "")
-          .includes("costcode");
-        const alignRight = !isCostCode && isCurrencyColumn(keyPath, data);
+        const alignRight = isAmountColumn(header);
 
         return (
           <TableHead
@@ -203,15 +187,12 @@ const CustomTable = <T extends TableRowData>({
         {headers.map((header) => {
           const keyPath = headerKeyMap[header];
           const cellValue = getNestedValue(typedRow, keyPath);
-          const isCostCode = header
-            .toLowerCase()
-            .replace(/[_\s-]/g, "")
-            .includes("costcode");
+          const alignRight = isAmountColumn(header);
           return (
             <TableCell
               key={`${rowId}-${header}`}
               className={`whitespace-nowrap px-3 py-2 font-montserrat text-sm ${
-                !isCostCode && isCurrencyLike(cellValue) ? "text-right" : ""
+                alignRight ? "text-right" : ""
               }`}
             >
               {cellValue !== undefined ? cellValue : "-"}

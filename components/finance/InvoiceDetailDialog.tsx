@@ -83,7 +83,7 @@ export default function InvoiceDetailDialog({
       open={open}
       onOpenChange={onOpenChange}
       triggerComponent={<span className="hidden" />}
-      contentClassName="max-w-[420px] rounded-2xl p-6"
+      contentClassName="max-w-[420px] rounded-2xl bg-white p-6"
     >
       <div className="flex flex-col gap-4">
         {/* Title */}

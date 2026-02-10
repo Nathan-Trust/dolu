@@ -38,7 +38,7 @@ const getMenuItems = (role: UserRole): MenuItem[] => [
     href: `/dashboard/${role}/overview`,
   },
   { icon: Users, label: "People", href: `/dashboard/${role}/people` },
-//   { icon: FileBarChart, label: "Reports", href: "/dashboard" },
+  //   { icon: FileBarChart, label: "Reports", href: "/dashboard" },
   { icon: UserCheck, label: "Clients", href: `/dashboard/${role}/clients` },
   { icon: Home, label: "Properties", href: `/dashboard/${role}/properties` },
   // Finance is hidden for realtors
