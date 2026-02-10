@@ -125,6 +125,16 @@
   }
 }
 
+/* Hide Scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Tame Leaflet z-index so map doesn't overlay dialogs/sheets (z-50) */
 .leaflet-pane,
 .leaflet-top,

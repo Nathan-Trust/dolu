@@ -9,7 +9,7 @@ export default function AuthLayout({
     <div className="h-screen w-full overflow-hidden bg-[#f3f3f3]">
       <div className="flex h-full">
         {/* Left side - Form content */}
-        <div className="flex w-full flex-col justify-center overflow-y-auto px-16 py-12 lg:w-1/2">
+        <div className="flex w-full flex-col justify-center overflow-y-auto scrollbar-hide px-16 py-12 lg:w-1/2">
           <div className="flex max-w-[421px] flex-col gap-16">
             {/* Logo and Title */}
             <div className="flex flex-col gap-4">

@@ -56,7 +56,7 @@ export default function DashboardShell({
         />
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4">{children}</main>
+        <main className="flex-1 overflow-y-auto scrollbar-hide p-4">{children}</main>
       </div>
     </div>
   );
