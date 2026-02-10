@@ -595,45 +595,45 @@ export default function AdminOverview({ role }: AdminOverviewProps) {
 
         {/* Scrollable table area */}
         <div className="overflow-x-auto">
-        {/* Table header */}
-        <div className="grid min-w-125 grid-cols-[64px_1fr_1fr_1fr_1fr] items-center rounded px-1 py-2 font-montserrat text-sm font-bold text-[#0f0f0f]">
-          <span>Position</span>
-          <span>Name</span>
-          <span>Sales</span>
-          <span>Amount</span>
-          <span>Latest Sale</span>
-        </div>
+          {/* Table header */}
+          <div className="grid min-w-125 grid-cols-[64px_1fr_1fr_1fr_1fr] items-center rounded px-1 py-2 font-montserrat text-sm font-bold text-[#0f0f0f]">
+            <span>Position</span>
+            <span>Name</span>
+            <span>Sales</span>
+            <span>Amount</span>
+            <span>Latest Sale</span>
+          </div>
 
-        {/* Table rows */}
-        {salesLeaderboard.map((row, idx) => (
-          <div key={row.position}>
-            <div className="grid min-w-125 grid-cols-[64px_1fr_1fr_1fr_1fr] items-center rounded px-1 py-1">
-              <PositionBadge position={row.position} />
-              <div className="flex items-center gap-1">
-                <div className="flex size-4 items-center justify-center rounded-full bg-gray-300">
-                  <span className="text-[8px] font-bold text-white">
-                    {row.initials}
+          {/* Table rows */}
+          {salesLeaderboard.map((row, idx) => (
+            <div key={row.position}>
+              <div className="grid min-w-125 grid-cols-[64px_1fr_1fr_1fr_1fr] items-center rounded px-1 py-1">
+                <PositionBadge position={row.position} />
+                <div className="flex items-center gap-1">
+                  <div className="flex size-4 items-center justify-center rounded-full bg-gray-300">
+                    <span className="text-[8px] font-bold text-white">
+                      {row.initials}
+                    </span>
+                  </div>
+                  <span className="font-montserrat text-sm text-[#6f6d6d]">
+                    {row.name}
                   </span>
                 </div>
-                <span className="font-montserrat text-sm text-[#6f6d6d]">
-                  {row.name}
+                <span className="font-montserrat text-sm text-[#0f0f0f]">
+                  {row.sales}
+                </span>
+                <span className="font-montserrat text-sm text-[#0f0f0f]">
+                  {row.amount}
+                </span>
+                <span className="font-montserrat text-sm text-[#0f0f0f]">
+                  {row.latestSale}
                 </span>
               </div>
-              <span className="font-montserrat text-sm text-[#0f0f0f]">
-                {row.sales}
-              </span>
-              <span className="font-montserrat text-sm text-[#0f0f0f]">
-                {row.amount}
-              </span>
-              <span className="font-montserrat text-sm text-[#0f0f0f]">
-                {row.latestSale}
-              </span>
+              {idx < salesLeaderboard.length - 1 && (
+                <div className="h-px w-full bg-[#e0e0e0]" />
+              )}
             </div>
-            {idx < salesLeaderboard.length - 1 && (
-              <div className="h-px w-full bg-[#e0e0e0]" />
-            )}
-          </div>
-        ))}
+          ))}
         </div>
       </div>
 

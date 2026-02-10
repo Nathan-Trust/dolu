@@ -78,9 +78,7 @@ function PreferenceRow({
         <p className="font-montserrat text-sm font-bold text-[#0f0f0f]">
           {title}
         </p>
-        <p className="font-montserrat text-xs text-[#6f6d6d]">
-          {description}
-        </p>
+        <p className="font-montserrat text-xs text-[#6f6d6d]">{description}</p>
       </div>
       <div className="flex flex-col items-end gap-2">{children}</div>
     </div>

@@ -213,7 +213,7 @@ function EstateDetailDialog({
         </div>
 
         {/* Gallery */}
-        <div className="grid grid-cols-3 gap-2 px-6 pt-4">
+        <div className="grid grid-cols-2 gap-2 px-6 pt-4 sm:grid-cols-3">
           {detail.galleryImages.map((src, i) => (
             <div
               key={`gallery-${estate.id}-${i}`}

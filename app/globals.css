@@ -124,3 +124,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Tame Leaflet z-index so map doesn't overlay dialogs/sheets (z-50) */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom,
+.leaflet-control {
+  z-index: auto !important;
+}
+.leaflet-container {
+  z-index: 0;
+}

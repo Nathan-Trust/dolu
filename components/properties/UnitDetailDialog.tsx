@@ -191,11 +191,11 @@ export default function UnitDetailDialog({
       open={open}
       onOpenChange={onOpenChange}
       triggerComponent={<span />}
-      contentClassName="!w-[759px] !max-w-[759px] !p-0 !gap-0 !border-0 !bg-transparent !shadow-none"
+      contentClassName="!w-full !max-w-[759px] !p-0 !gap-0 !border-0 !bg-transparent !shadow-none"
     >
       <div className="flex max-h-[85vh] flex-col gap-4 overflow-y-auto rounded-lg bg-[#f8f8f8] p-4 md:max-h-[80vh]">
         {/* ── Hero banner ── */}
-        <div className="relative h-25 w-full overflow-hidden rounded-lg">
+        <div className="relative h-40 w-full overflow-hidden rounded-lg md:h-48">
           <Image
             src={unit.heroImage}
             alt={unit.estate}

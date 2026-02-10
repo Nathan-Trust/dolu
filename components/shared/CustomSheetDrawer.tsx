@@ -59,7 +59,7 @@ const CustomSheet: React.FC<CustomSheetProps> = ({
         onOpenAutoFocus={(e) => e.preventDefault()}
         onCloseAutoFocus={(e) => e.preventDefault()}
         className={cn(
-          ` px-2 md:px-5 min-w-[350px]  border-none outline-none ring-0 h-full bg-[#FCFCFC]`,
+          ` px-2 md:px-5 min-w-0 sm:min-w-87.5  border-none outline-none ring-0 h-full bg-[#FCFCFC]`,
           className
         )}
       >
