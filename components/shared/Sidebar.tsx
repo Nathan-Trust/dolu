@@ -116,8 +116,8 @@ export default function Sidebar({ role, onNavigate }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <div className="flex flex-1 flex-col justify-between pl-8">
-        <nav className="flex flex-col gap-6">
+      <div className="flex min-h-0 flex-1 flex-col justify-between pl-8">
+        <nav className="flex flex-col gap-6 overflow-y-auto pr-2">
           {menuItems.map((item) => {
             const isExpanded = expandedItems.includes(item.label);
             const isActive = isMenuActive(item);
