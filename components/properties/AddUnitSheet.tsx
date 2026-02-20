@@ -5,8 +5,13 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Upload, X } from "lucide-react";
 import Image from "next/image";
+import { useMutation } from "@tanstack/react-query";
 
 import { addUnitSchema, type AddUnitFormValues } from "@/schema/properties";
+import { PropertyService } from "@/services/properties";
+import { QueryKeys } from "@/models/query";
+import { useInvalidateQueries } from "@/hooks/use-invalidate-query";
+import { errorToast, successToast } from "@/util/toast";
 import CustomSheet from "@/components/shared/CustomSheetDrawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +70,7 @@ interface AddUnitSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   estateName: string;
+  estateId?: number | string;
   onSuccess?: (unit: { type: string; estate: string }) => void;
 }
 
@@ -76,6 +82,7 @@ export default function AddUnitSheet({
   open,
   onOpenChange,
   estateName,
+  estateId,
   onSuccess,
 }: AddUnitSheetProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -125,14 +132,54 @@ export default function AddUnitSheet({
     setMediaPreviews((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
+  /* Query invalidation */
+  const { invalidateQuery } = useInvalidateQueries();
+
+  /* Mutation: create property/unit via POST /properties + upload images */
+  const createUnitMutation = useMutation({
+    mutationFn: async (data: AddUnitFormValues) => {
+      const res = await PropertyService.createProperty({
+        title: data.unitType,
+        address: estateName,
+        property_type: data.propertyType,
+        estate_id: Number(estateId) || 0,
+      });
+
+      /* Upload media files if any */
+      if (res.data?.id && mediaFiles.length > 0) {
+        for (const file of mediaFiles) {
+          await PropertyService.uploadPropertyImages(res.data.id, file);
+        }
+      }
+
+      return res;
+    },
+    onSuccess: () => {
+      invalidateQuery([QueryKeys.Get_Properties]);
+      invalidateQuery([QueryKeys.Get_Estates]);
+      invalidateQuery([QueryKeys.Get_Estate]);
+    },
+  });
+
   /* Submit */
   const onSubmit = (data: AddUnitFormValues) => {
-    console.log("Add unit data:", data, "media:", mediaFiles);
-    onSuccess?.({ type: data.unitType, estate: estateName });
-    reset();
-    setMediaPreviews([]);
-    setMediaFiles([]);
-    onOpenChange(false);
+    createUnitMutation.mutate(data, {
+      onSuccess: () => {
+        successToast({ title: "Unit", message: "Unit added successfully" });
+        onSuccess?.({ type: data.unitType, estate: estateName });
+        reset();
+        setMediaPreviews([]);
+        setMediaFiles([]);
+        onOpenChange(false);
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onError: (error: any) => {
+        errorToast({
+          title: "Unit",
+          message: error?.response?.data?.message || "Failed to add unit",
+        });
+      },
+    });
   };
 
   return (
@@ -379,10 +426,10 @@ export default function AddUnitSheet({
           <div className="flex justify-end">
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={createUnitMutation.isPending}
               className="w-31 rounded-lg bg-[#8a38f5] px-1 py-2 font-montserrat text-sm font-bold text-[#f8f8f8] hover:bg-[#8a38f5]/90"
             >
-              {isSubmitting ? "Submitting..." : "Submit"}
+              {createUnitMutation.isPending ? "Submitting..." : "Submit"}
             </Button>
           </div>
         </FieldGroup>

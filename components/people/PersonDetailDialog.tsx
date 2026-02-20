@@ -15,6 +15,7 @@ import { PersonStatusBadge } from "./PersonStatusBadge";
 import { TogglePill } from "@/components/overview";
 import { formatYAxisTick } from "@/components/overview/formatters";
 import { Badge } from "@/components/ui/badge";
+import { usePerson } from "@/hooks/usePerson";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -470,5 +471,79 @@ export default function PersonDetailDialog({
         </div>
       </div>
     </CustomDialog>
+  );
+}
+
+/* ── Wrapper component that uses the usePerson hook ── */
+interface PersonDetailDialogWrapperProps {
+  selectedPersonId: string | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function PersonDetailDialogWrapper({
+  selectedPersonId,
+  open,
+  onOpenChange,
+}: PersonDetailDialogWrapperProps) {
+  const { data: personData } = usePerson(selectedPersonId || undefined);
+
+  const salesChartData = [
+    { month: "JAN", revenue: 2_000_000 },
+    { month: "FEB", revenue: 3_500_000 },
+    { month: "MAR", revenue: 3_000_000 },
+    { month: "APR", revenue: 4_500_000 },
+    { month: "MAY", revenue: 5_000_000 },
+    { month: "JUN", revenue: 6_000_000 },
+    { month: "JUL", revenue: 7_500_000 },
+    { month: "AUG", revenue: 8_500_000 },
+    { month: "SEP", revenue: 10_000_000 },
+    { month: "OCT", revenue: 12_000_000 },
+    { month: "NOV", revenue: 9_000_000 },
+    { month: "DEC", revenue: 8_000_000 },
+  ];
+
+  /* Map API person to component PersonDetail */
+  const person: PersonDetail | null = personData
+    ? {
+        id: personData.id,
+        name: `${personData.first_name} ${personData.last_name}`.trim(),
+        initials:
+          `${personData.first_name?.[0] || ""}${personData.last_name?.[0] || ""}`.toUpperCase(),
+        avatarColor: "#8a38f5",
+        roleBadge: personData.role?.name || "Staff",
+        performance: personData.performance || "Satisfactory",
+        status: (personData.status === "suspended" ? "Dormant" : "Active") as
+          | "Active"
+          | "Dormant",
+        lastActivity: personData.last_active
+          ? new Date(personData.last_active).toLocaleString()
+          : "-",
+        kpi: {
+          salesValue: personData.sales_value
+            ? `₦${personData.sales_value.toLocaleString()}`
+            : "₦0",
+          dealsCount: personData.deals_count || 0,
+        },
+        reports: { weeklyReports: 0, missedReports: 0 },
+        deals: {
+          closed: personData.deals_closed || 0,
+          payment: 0,
+          negotiation: 0,
+          inspection: 0,
+          interested: 0,
+        },
+        salesPerformance: salesChartData,
+      }
+    : selectedPersonId
+      ? (mockPersonDetails[selectedPersonId] ?? null)
+      : null;
+
+  return (
+    <PersonDetailDialog
+      person={person}
+      open={open}
+      onOpenChange={onOpenChange}
+    />
   );
 }

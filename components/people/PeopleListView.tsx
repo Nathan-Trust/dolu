@@ -16,7 +16,12 @@ import { type UserRole } from "@/util/status";
 import PersonDetailDialog, {
   mockPersonDetails,
   type PersonDetail,
+  PersonDetailDialogWrapper,
 } from "./PersonDetailDialog";
+import { usePeople } from "@/hooks/usePeople";
+import { FetchLoadingAndEmptyState } from "@/components/shared/FetchLoadinAndEmptyState";
+import { CustomTableSkeleton } from "@/components/shared/CustomTableSkeleton";
+import CustomTableEmptyState from "@/components/shared/CustomTableEmptyState";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -162,51 +167,87 @@ export default function PeopleListView({
   const [selectedPerson, setSelectedPerson] = useState<PersonDetail | null>(
     null,
   );
+  const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const rawData = activeTab === 0 ? staffMembers : realtorMembers;
+  /* Fetch people from API */
+  const { isLoading, data: peopleData } = usePeople();
+
+  /* Filter by role tab */
+  const rawData = useMemo(() => {
+    const people = (peopleData?.data ?? []) as any[];
+    if (activeTab === 0) {
+      // Staff tab - filter for role containing 'Staff'
+      return people.filter((p: any) =>
+        (p.role?.name || "").toLowerCase().includes("staff"),
+      );
+    } else {
+      // Realtors tab - filter for role containing 'Realtor'
+      return people.filter((p: any) =>
+        (p.role?.name || "").toLowerCase().includes("realtor"),
+      );
+    }
+  }, [peopleData, activeTab]);
 
   const filteredData = useMemo(() => {
     let result = rawData;
 
     if (search.trim()) {
       const q = search.toLowerCase();
-      result = result.filter(
-        (m) =>
-          m.name.toLowerCase().includes(q) || m.role.toLowerCase().includes(q),
-      );
+      result = result.filter((m: any) => {
+        const name = `${m.first_name ?? ""} ${m.last_name ?? ""}`.toLowerCase();
+        return (
+          name.includes(q) || (m.role?.name ?? "").toLowerCase().includes(q)
+        );
+      });
     }
 
     if (statusFilter.length > 0) {
-      result = result.filter((m) => statusFilter.includes(m.status));
+      result = result.filter((m: any) => statusFilter.includes(m.status));
     }
 
     if (performanceFilter.length > 0) {
-      result = result.filter((m) => performanceFilter.includes(m.performance));
+      result = result.filter((m: any) =>
+        performanceFilter.includes(m.performance),
+      );
     }
 
     return result;
   }, [rawData, search, statusFilter, performanceFilter]);
 
   /* Build renderable rows for CustomTable */
-  const tableData = filteredData.map((m) => ({
-    _id: m.id,
-    name: (
-      <PersonCell name={m.name} initials={m.initials} color={m.avatarColor} />
-    ),
-    role: m.role,
-    status: <PersonStatusBadge status={m.status} />,
-    performance: <PerformanceBadge level={m.performance} />,
-    lastActivity: m.lastActivity,
-  }));
+  const tableData = filteredData.map((m: any) => {
+    const name =
+      `${m.first_name ?? ""} ${m.last_name ?? ""}`.trim() ||
+      m.email ||
+      "Unknown";
+    const initials = name
+      .split(" ")
+      .map((p: string) => p[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+
+    return {
+      _id: String(m.id ?? ""),
+      name: <PersonCell name={name} initials={initials} color="#8a38f5" />,
+      role: m.role?.name || "Unknown",
+      status: (
+        <PersonStatusBadge status={(m.status as PersonStatus) ?? "Active"} />
+      ),
+      performance: (
+        <PerformanceBadge
+          level={(m.performance as PerformanceLevel) ?? "Satisfactory"}
+        />
+      ),
+      lastActivity: m.last_active ?? m.updated_at ?? "-",
+    };
+  });
 
   const handleRowClick = (row: Record<string, unknown>) => {
     const id = row._id as string;
-    const person = mockPersonDetails[id];
-    if (person) {
-      setSelectedPerson(person);
-      setDialogOpen(true);
-    }
+    setSelectedPersonId(id);
+    setDialogOpen(true);
   };
 
   const headers = ["Name", "Role", "Status", "Performance", "Last Activity"];
@@ -223,41 +264,54 @@ export default function PeopleListView({
       {/* Page header */}
       <PeopleHeader activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Table */}
-      <CustomTable
-        title={activeTab === 0 ? "Staff" : "Realtors"}
-        searchSlot={
-          <SearchInput
-            value={search}
-            onChange={setSearch}
-            placeholder="Search by name..."
+      <FetchLoadingAndEmptyState
+        isLoading={isLoading}
+        data={tableData.length}
+        numberOfSkeleton={5}
+        skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
+        emptyState={
+          <CustomTableEmptyState
+            headers={headers}
+            emptyMessage={`No ${activeTab === 0 ? "staff members" : "realtors"} found.`}
           />
         }
-        headerRight={
-          <div className="flex items-center gap-2">
-            <CustomMultiSelectFilter
-              title="Status"
-              options={statusOptions}
-              selectedValues={statusFilter}
-              onApplyFilter={setStatusFilter}
+      >
+        {/* Table */}
+        <CustomTable
+          title={activeTab === 0 ? "Staff" : "Realtors"}
+          searchSlot={
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Search by name..."
             />
-            <CustomMultiSelectFilter
-              title="Performance"
-              options={performanceOptions}
-              selectedValues={performanceFilter}
-              onApplyFilter={setPerformanceFilter}
-            />
-          </div>
-        }
-        headers={headers}
-        data={tableData}
-        headerKeyMap={headerKeyMap}
-        onRowClick={handleRowClick}
-      />
+          }
+          headerRight={
+            <div className="flex items-center gap-2">
+              <CustomMultiSelectFilter
+                title="Status"
+                options={statusOptions}
+                selectedValues={statusFilter}
+                onApplyFilter={setStatusFilter}
+              />
+              <CustomMultiSelectFilter
+                title="Performance"
+                options={performanceOptions}
+                selectedValues={performanceFilter}
+                onApplyFilter={setPerformanceFilter}
+              />
+            </div>
+          }
+          headers={headers}
+          data={tableData}
+          headerKeyMap={headerKeyMap}
+          onRowClick={handleRowClick}
+        />
+      </FetchLoadingAndEmptyState>
 
       {/* Person detail dialog */}
-      <PersonDetailDialog
-        person={selectedPerson}
+      <PersonDetailDialogWrapper
+        selectedPersonId={selectedPersonId}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />

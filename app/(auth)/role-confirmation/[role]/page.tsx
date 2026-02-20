@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { RoleBadge } from "@/components/shared/RoleBadge";
 import { getRoleConfig, isValidRole, type UserRole } from "@/util/status";
 import { use } from "react";
+import { useStore } from "@/store/user-store";
 
 interface RoleConfirmationPageProps {
   params: Promise<{ role: string }>;
@@ -16,6 +17,7 @@ export default function RoleConfirmationPage({
 }: RoleConfirmationPageProps) {
   const { role } = use(params);
   const router = useRouter();
+  const { userData } = useStore();
 
   if (!isValidRole(role)) {
     notFound();
@@ -24,8 +26,11 @@ export default function RoleConfirmationPage({
   const validRole = role as UserRole;
   const roleConfig = getRoleConfig(validRole);
 
-  // TODO: Get actual user name from session/auth
-  const userName = "Sim Tommy";
+  /* Use actual user name from store, fallback gracefully */
+  const userName = userData
+    ? `${userData.first_name || ""} ${userData.last_name || ""}`.trim() ||
+      "User"
+    : "User";
 
   const handleProceed = () => {
     router.push(`/dashboard/${validRole}/overview`);

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { RoleBadge } from "@/components/shared/RoleBadge";
 import { type UserRole } from "@/util/status";
+import { useStore } from "@/store/user-store";
 
 interface SidebarProps {
   role: UserRole;
@@ -75,13 +76,21 @@ const getMenuItems = (role: UserRole): MenuItem[] => [
 export default function Sidebar({ role, onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { userData } = useStore();
   const menuItems = getMenuItems(role);
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
-  // TODO: Get from session/auth
-  const userName = "Sim Tommy";
-  const userEmail = "simtommy@email.com";
-  const userInitials = "ST";
+  const userName = userData
+    ? `${userData.first_name ?? ""} ${userData.last_name ?? ""}`.trim() ||
+      "User"
+    : "User";
+  const userEmail = userData?.email ?? "";
+  const userInitials = userName
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   const toggleExpand = (label: string) => {
     setExpandedItems((prev) =>
@@ -200,16 +209,25 @@ export default function Sidebar({ role, onNavigate }: SidebarProps) {
           {/* User info */}
           <div className="flex items-center gap-1">
             <div className="relative flex size-12 shrink-0 items-center justify-center rounded-full bg-[#d9edff]">
-              <span className="font-montserrat text-[27px] font-bold text-[#0088ff]">
+              <span
+                className="font-montserrat text-[27px] font-bold text-[#0088ff]"
+                suppressHydrationWarning
+              >
                 {userInitials}
               </span>
             </div>
             <div className="flex flex-col gap-0.5">
               <RoleBadge role={role} />
-              <p className="font-montserrat text-base font-bold text-[#f8f8f8]">
+              <p
+                className="font-montserrat text-base font-bold text-[#f8f8f8]"
+                suppressHydrationWarning
+              >
                 {userName}
               </p>
-              <p className="font-montserrat text-xs font-normal text-[#c8c8c8]">
+              <p
+                className="font-montserrat text-xs font-normal text-[#c8c8c8]"
+                suppressHydrationWarning
+              >
                 {userEmail}
               </p>
             </div>

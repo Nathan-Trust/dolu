@@ -8,6 +8,7 @@ import {
   type PropertyStatus,
 } from "./PropertyStatusBadge";
 import { Button } from "@/components/ui/button";
+import { useEstate } from "@/hooks/useEstate";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -268,5 +269,53 @@ export default function PropertyDetailDialog({
         </div>
       </div>
     </CustomDialog>
+  );
+}
+
+/* ── Wrapper component that uses the useEstate hook ── */
+interface PropertyDetailDialogWrapperProps {
+  selectedPropertyId: string | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function PropertyDetailDialogWrapper({
+  selectedPropertyId,
+  open,
+  onOpenChange,
+}: PropertyDetailDialogWrapperProps) {
+  const { data: estateData } = useEstate(selectedPropertyId || undefined);
+
+  /* Map API estate to component PropertyDetail */
+  const property: PropertyDetail | null = estateData
+    ? {
+        id: String(estateData.id),
+        estateName: estateData.title,
+        estateCode: String(estateData.id),
+        location: estateData.location || estateData.city || "",
+        status: "Available" as PropertyStatus,
+        totalUnits: estateData.properties?.length || 0,
+        availableUnits:
+          estateData.properties?.filter((p) => p.status === "available")
+            .length || 0,
+        sold:
+          estateData.properties?.filter((p) => p.status === "sold").length || 0,
+        description: estateData.description || "",
+        salesVelocity: "Available" as PropertyStatus,
+        heroImage:
+          (estateData.images?.[0] as any)?.fileUrl ||
+          "/5a872bc446ad776970f5d1c25973220607070e44.png",
+        mapImage: "/cf12a255d3dbcf184c44c0f9f40603bf0e4b97a4.png",
+      }
+    : selectedPropertyId
+      ? (mockPropertyDetails[selectedPropertyId] ?? null)
+      : null;
+
+  return (
+    <PropertyDetailDialog
+      property={property}
+      open={open}
+      onOpenChange={onOpenChange}
+    />
   );
 }

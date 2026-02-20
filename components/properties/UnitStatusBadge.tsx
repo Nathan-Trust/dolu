@@ -23,8 +23,14 @@ const statusConfig: Record<
   },
 };
 
-export function UnitStatusBadge({ status }: { status: UnitStatus }) {
-  const config = statusConfig[status];
+export function UnitStatusBadge({ status }: { status: string }) {
+  const config = statusConfig[status as UnitStatus] ?? {
+    bg: "#e0e0e0",
+    text: "#6f6d6d",
+    label: status
+      ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
+      : "Unknown",
+  };
   return (
     <Badge
       className="rounded-lg border border-transparent px-1 py-0.5 font-montserrat text-[9px] font-semibold"

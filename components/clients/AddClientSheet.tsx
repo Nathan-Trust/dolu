@@ -2,9 +2,13 @@
 
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Calendar } from "lucide-react";
 
 import { addClientSchema, type AddClientFormValues } from "@/schema/clients";
+import { ClientService } from "@/services/clients";
+import { QueryKeys } from "@/models/query";
+import { useInvalidateQueries } from "@/hooks/use-invalidate-query";
 import CustomSheet from "@/components/shared/CustomSheetDrawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -109,13 +113,27 @@ export default function AddClientSheet({
   const assignedToValue = useWatch({ control, name: "assignedTo" });
   const selectedStaff = staffOptions.find((s) => s.name === assignedToValue);
 
+  /* Query invalidation */
+  const { invalidateQuery } = useInvalidateQueries();
+
+  /* Mutation */
+  const addClientMutation = useMutation({
+    mutationFn: (data: AddClientFormValues) => ClientService.createClient(data),
+    onSuccess: () => {
+      invalidateQuery([QueryKeys.Get_Clients]);
+    },
+  });
+
   /* Submit */
   const onSubmit = (data: AddClientFormValues) => {
-    console.log("Add client data:", data);
-    const code = crypto.randomUUID().slice(0, 5);
-    onSuccess?.({ name: data.clientName || "Peter Abbey", code });
-    reset();
-    onOpenChange(false);
+    addClientMutation.mutate(data, {
+      onSuccess: (res) => {
+        const code = crypto.randomUUID().slice(0, 5);
+        onSuccess?.({ name: data.clientName || "Client", code });
+        reset();
+        onOpenChange(false);
+      },
+    });
   };
 
   return (
@@ -369,10 +387,10 @@ export default function AddClientSheet({
           <div className="flex justify-end">
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={addClientMutation.isPending}
               className="w-31 rounded-lg bg-[#8a38f5] px-1 py-2 font-montserrat text-sm font-bold text-[#f8f8f8] hover:bg-[#8a38f5]/90"
             >
-              {isSubmitting ? "Submitting..." : "Submit"}
+              {addClientMutation.isPending ? "Submitting..." : "Submit"}
             </Button>
           </div>
         </FieldGroup>

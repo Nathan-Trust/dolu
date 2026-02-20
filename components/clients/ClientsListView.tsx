@@ -11,86 +11,17 @@ import {
   type ClientStatus,
   type SalesStage,
 } from "./ClientStatusBadge";
-import ClientDetailDialog, { mockClientDetails } from "./ClientDetailDialog";
+import { ClientDetailDialogWrapper } from "./ClientDetailDialog";
 import AddClientSheet from "./AddClientSheet";
 import SuccessDialog from "@/components/shared/SuccessDialog";
 import { type UserRole } from "@/util/status";
+import { useClients } from "@/hooks/useClients";
+import { useClient } from "@/hooks/useClient";
+import { FetchLoadingAndEmptyState } from "@/components/shared/FetchLoadinAndEmptyState";
+import { CustomTableSkeleton } from "@/components/shared/CustomTableSkeleton";
+import CustomTableEmptyState from "@/components/shared/CustomTableEmptyState";
 
-/* ------------------------------------------------------------------ */
-/*  Types                                                              */
-/* ------------------------------------------------------------------ */
-
-interface ClientRecord {
-  id: string;
-  clientName: string;
-  clientCode: string;
-  assignedTo: {
-    name: string;
-    initials: string;
-    avatarColor: string;
-  };
-  currentSalesStage: SalesStage;
-  lastActivityDate: string;
-  dealValue: string;
-  status: ClientStatus;
-}
-
-/* ------------------------------------------------------------------ */
-/*  Mock data                                                          */
-/* ------------------------------------------------------------------ */
-
-const mockClients: ClientRecord[] = [
-  {
-    id: "c1",
-    clientName: "Peter Abbey",
-    clientCode: "01014",
-    assignedTo: { name: "John Ibekwe", initials: "JI", avatarColor: "#8a38f5" },
-    currentSalesStage: "Closed",
-    lastActivityDate: "Just Now",
-    dealValue: "₦5,250,000.00",
-    status: "Active",
-  },
-  {
-    id: "c2",
-    clientName: "Peter Abbey",
-    clientCode: "01014",
-    assignedTo: { name: "John Ibekwe", initials: "JI", avatarColor: "#8a38f5" },
-    currentSalesStage: "Payment",
-    lastActivityDate: "Just Now",
-    dealValue: "₦5,250,000.00",
-    status: "Active",
-  },
-  {
-    id: "c3",
-    clientName: "Peter Abbey",
-    clientCode: "01014",
-    assignedTo: { name: "John Ibekwe", initials: "JI", avatarColor: "#8a38f5" },
-    currentSalesStage: "Negotiation",
-    lastActivityDate: "Just Now",
-    dealValue: "Undefined",
-    status: "Active",
-  },
-  {
-    id: "c4",
-    clientName: "Peter Abbey",
-    clientCode: "01014",
-    assignedTo: { name: "John Ibekwe", initials: "JI", avatarColor: "#8a38f5" },
-    currentSalesStage: "Inspection",
-    lastActivityDate: "Just Now",
-    dealValue: "₦5,250,000.00",
-    status: "Active",
-  },
-  {
-    id: "c5",
-    clientName: "Peter Abbey",
-    clientCode: "01014",
-    assignedTo: { name: "John Ibekwe", initials: "JI", avatarColor: "#8a38f5" },
-    currentSalesStage: "Interested",
-    lastActivityDate: "Just Now",
-    dealValue: "Undefined",
-    status: "Active",
-  },
-];
+/* We'll fetch clients from API using `useClients` */
 
 /* ------------------------------------------------------------------ */
 /*  Filter options                                                     */
@@ -146,69 +77,88 @@ export default function ClientsListView({
   const [inactivityFilter, setInactivityFilter] = useState<(string | number)[]>(
     [],
   );
+  const { isLoading, data: clientsData } = useClients();
+  const { data: clientDetailData } = useClient(selectedClientId ?? undefined);
 
   /* Role-based data filtering */
   const baseData = useMemo(() => {
+    const list: any[] = (clientsData?.data ?? []) as any[];
     if (role === "staff") {
-      // Staff sees only clients assigned to them (mock: "John Ibekwe")
-      return mockClients.filter((c) => c.assignedTo.name === "John Ibekwe");
+      return list.filter((c) => (c.assigned_staff || "").includes("John"));
     }
     if (role === "realtor") {
-      // Realtor sees only their own clients (mock: "David Okoro")
-      return mockClients.filter((c) => c.assignedTo.name === "David Okoro");
+      return list.filter((c) => (c.assigned_staff || "").includes("David"));
     }
-    // Chairman & Admin see all
-    return mockClients;
-  }, [role]);
+    return list;
+  }, [clientsData, role]);
 
   const filteredData = useMemo(() => {
     let result = baseData;
 
     if (search.trim()) {
       const q = search.toLowerCase();
-      result = result.filter(
-        (c) =>
-          c.clientName.toLowerCase().includes(q) ||
-          c.clientCode.toLowerCase().includes(q) ||
-          c.assignedTo.name.toLowerCase().includes(q),
-      );
+      result = result.filter((c: any) => {
+        const name = `${c.first_name ?? ""} ${c.last_name ?? ""}`.toLowerCase();
+        return (
+          name.includes(q) ||
+          String(c.id).toLowerCase().includes(q) ||
+          (c.assigned_staff || "").toLowerCase().includes(q) ||
+          (c.email || "").toLowerCase().includes(q)
+        );
+      });
     }
 
     if (salesStageFilter.length > 0) {
-      result = result.filter((c) =>
-        salesStageFilter.includes(c.currentSalesStage),
+      result = result.filter((c: any) =>
+        salesStageFilter.includes(c.sales_stage),
       );
     }
 
     if (assignedToFilter.length > 0) {
-      result = result.filter((c) =>
-        assignedToFilter.includes(c.assignedTo.name),
+      result = result.filter((c: any) =>
+        assignedToFilter.includes(c.assigned_staff),
       );
     }
 
     if (inactivityFilter.length > 0) {
-      result = result.filter((c) => inactivityFilter.includes(c.status));
+      result = result.filter((c: any) => inactivityFilter.includes(c.status));
     }
 
     return result;
   }, [baseData, search, salesStageFilter, assignedToFilter, inactivityFilter]);
 
   /* Build renderable rows for CustomTable */
-  const tableData = filteredData.map((c) => ({
-    clientName: c.clientName,
-    clientCode: c.clientCode,
-    assignedTo: (
-      <PersonCell
-        name={c.assignedTo.name}
-        initials={c.assignedTo.initials}
-        color={c.assignedTo.avatarColor}
-      />
-    ),
-    currentSalesStage: c.currentSalesStage,
-    lastActivityDate: c.lastActivityDate,
-    dealValue: c.dealValue,
-    status: <ClientStatusBadge status={c.status} />,
-  }));
+  const tableData = filteredData.map((c: any) => {
+    const name =
+      `${c.first_name ?? ""} ${c.last_name ?? ""}`.trim() ||
+      c.email ||
+      "Unknown";
+    const initials = name
+      .split(" ")
+      .map((p: string) => p[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+
+    return {
+      clientName: name,
+      clientCode: String(c.id ?? ""),
+      assignedTo: (
+        <PersonCell
+          name={c.assigned_staff ?? ""}
+          initials={initials}
+          color="#8a38f5"
+        />
+      ),
+      currentSalesStage:
+        (c.sales_stage as SalesStage) ?? ("Interested" as SalesStage),
+      lastActivityDate: c.last_active ?? c.updated_at ?? "-",
+      dealValue: c.deal_value ? `₦${c.deal_value}` : "Undefined",
+      status: (
+        <ClientStatusBadge status={(c.status as ClientStatus) ?? "Active"} />
+      ),
+    };
+  });
 
   const headers = [
     "Client Name",
@@ -239,57 +189,65 @@ export default function ClientsListView({
         onAddClient={() => setAddClientOpen(true)}
       />
 
-      {/* Table */}
-      <CustomTable
-        title="Staff"
-        searchSlot={
-          <SearchInput
-            value={search}
-            onChange={setSearch}
-            placeholder="Search"
+      <FetchLoadingAndEmptyState
+        isLoading={isLoading}
+        data={tableData.length}
+        numberOfSkeleton={5}
+        skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
+        emptyState={
+          <CustomTableEmptyState
+            headers={headers}
+            emptyMessage="No clients found. Add a new client to get started."
           />
         }
-        headerRight={
-          <div className="flex items-center gap-4">
-            <CustomMultiSelectFilter
-              title="Sales Stage"
-              options={salesStageOptions}
-              selectedValues={salesStageFilter}
-              onApplyFilter={setSalesStageFilter}
+      >
+        <CustomTable
+          title="Clients"
+          searchSlot={
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Search"
             />
-            <CustomMultiSelectFilter
-              title="Assigned to"
-              options={assignedToOptions}
-              selectedValues={assignedToFilter}
-              onApplyFilter={setAssignedToFilter}
-            />
-            <CustomMultiSelectFilter
-              title="Inactivity"
-              options={inactivityOptions}
-              selectedValues={inactivityFilter}
-              onApplyFilter={setInactivityFilter}
-            />
-          </div>
-        }
-        headers={headers}
-        data={tableData}
-        headerKeyMap={headerKeyMap}
-        onRowClick={(row, index) => {
-          const client = filteredData[index];
-          if (client) {
-            setSelectedClientId(client.id);
-            setDialogOpen(true);
           }
-        }}
-      />
+          headerRight={
+            <div className="flex items-center gap-4">
+              <CustomMultiSelectFilter
+                title="Sales Stage"
+                options={salesStageOptions}
+                selectedValues={salesStageFilter}
+                onApplyFilter={setSalesStageFilter}
+              />
+              <CustomMultiSelectFilter
+                title="Assigned to"
+                options={assignedToOptions}
+                selectedValues={assignedToFilter}
+                onApplyFilter={setAssignedToFilter}
+              />
+              <CustomMultiSelectFilter
+                title="Inactivity"
+                options={inactivityOptions}
+                selectedValues={inactivityFilter}
+                onApplyFilter={setInactivityFilter}
+              />
+            </div>
+          }
+          headers={headers}
+          data={tableData}
+          headerKeyMap={headerKeyMap}
+          onRowClick={(row, index) => {
+            const clientId = tableData[index]?.clientCode;
+            if (clientId) {
+              setSelectedClientId(clientId);
+              setDialogOpen(true);
+            }
+          }}
+        />
+      </FetchLoadingAndEmptyState>
 
       {/* Client detail modal */}
-      <ClientDetailDialog
-        client={
-          selectedClientId
-            ? (mockClientDetails[selectedClientId] ?? null)
-            : null
-        }
+      <ClientDetailDialogWrapper
+        selectedClientId={selectedClientId}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />

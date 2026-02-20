@@ -1,21 +1,27 @@
 "use client";
 
 import { Bell, Search } from "lucide-react";
+import { useStore } from "@/store/user-store";
 
 interface TopNavBarProps {
-  userName?: string;
-  userEmail?: string;
-  userInitials?: string;
   /** Slot for the mobile hamburger button */
   mobileMenuButton?: React.ReactNode;
 }
 
-export default function TopNavBar({
-  userName = "Sim Tommy",
-  userEmail = "simtommy@email.com",
-  userInitials = "ST",
-  mobileMenuButton,
-}: TopNavBarProps) {
+export default function TopNavBar({ mobileMenuButton }: TopNavBarProps) {
+  const { userData } = useStore();
+
+  const userName = userData
+    ? `${userData.first_name ?? ""} ${userData.last_name ?? ""}`.trim() ||
+      "User"
+    : "User";
+  const userEmail = userData?.email ?? "";
+  const userInitials = userName
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
   return (
     <div className="flex items-center justify-between rounded-lg bg-[#f8f8f8] px-4 py-4">
       {/* Left: hamburger (mobile) + search */}
@@ -42,15 +48,24 @@ export default function TopNavBar({
         {/* User info */}
         <div className="flex items-center gap-1">
           <div className="relative flex size-10 shrink-0 items-center justify-center rounded-full bg-[#d9edff] md:size-12">
-            <span className="font-montserrat text-xl font-bold text-[#0088ff] md:text-[27px]">
+            <span
+              className="font-montserrat text-xl font-bold text-[#0088ff] md:text-[27px]"
+              suppressHydrationWarning
+            >
               {userInitials}
             </span>
           </div>
           <div className="hidden flex-col gap-0.5 md:flex">
-            <p className="font-montserrat text-base font-bold text-[#0f0f0f]">
+            <p
+              className="font-montserrat text-base font-bold text-[#0f0f0f]"
+              suppressHydrationWarning
+            >
               {userName}
             </p>
-            <p className="font-montserrat text-xs font-normal text-[#6f6d6d]">
+            <p
+              className="font-montserrat text-xs font-normal text-[#6f6d6d]"
+              suppressHydrationWarning
+            >
               {userEmail}
             </p>
           </div>

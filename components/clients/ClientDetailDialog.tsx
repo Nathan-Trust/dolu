@@ -3,6 +3,7 @@
 import CustomDialog from "@/components/shared/CustomDialog";
 import { Badge } from "@/components/ui/badge";
 import { type SalesStage } from "./ClientStatusBadge";
+import { useClient } from "@/hooks/useClient";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -443,5 +444,73 @@ export default function ClientDetailDialog({
         </div>
       </div>
     </CustomDialog>
+  );
+}
+
+/* ── Wrapper component that uses the useClient hook ── */
+interface ClientDetailDialogWrapperProps {
+  selectedClientId: string | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function ClientDetailDialogWrapper({
+  selectedClientId,
+  open,
+  onOpenChange,
+}: ClientDetailDialogWrapperProps) {
+  const { data: clientData } = useClient(selectedClientId || undefined);
+
+  // Fallback to mock data if API data not available
+  const client = clientData
+    ? {
+        id: String(clientData.id),
+        clientName: `${clientData.first_name} ${clientData.last_name}`.trim(),
+        clientCode: String(clientData.id),
+        email: clientData.email || "",
+        phone: clientData.phone || "",
+        assignedStaff: {
+          name: clientData.assigned_staff || "Unassigned",
+          initials: (clientData.assigned_staff || "?")
+            .split(" ")
+            .map((n: string) => n[0])
+            .join("")
+            .toUpperCase(),
+          avatarColor: "#8a38f5",
+          role: "Staff" as const,
+        },
+        currentStage: (clientData.sales_stage || "Lead") as SalesStage,
+        dealValue: clientData.deal_value
+          ? `₦${clientData.deal_value}`
+          : "Undefined",
+        property: {
+          type: "Property",
+          description: "Property details",
+          title: "Document",
+        },
+        followUps: {
+          nextFollowUpDate: "TBD",
+          expectedOutcome: "TBD",
+        },
+        paymentSummary: {
+          totalDealValue: clientData.deal_value
+            ? `₦${clientData.deal_value}`
+            : "Undefined",
+          amountPaid: "₦0",
+          outstandingBalance: clientData.deal_value
+            ? `₦${clientData.deal_value}`
+            : "Undefined",
+        },
+      }
+    : selectedClientId
+      ? (mockClientDetails[selectedClientId] ?? null)
+      : null;
+
+  return (
+    <ClientDetailDialog
+      client={client}
+      open={open}
+      onOpenChange={onOpenChange}
+    />
   );
 }

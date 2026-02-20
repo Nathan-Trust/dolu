@@ -4,8 +4,14 @@ import { useState, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Copy, Check } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 
 import { addUserSchema, type AddUserFormValues } from "@/schema/settings";
+import { PeopleService } from "@/services/people";
+import { QueryKeys } from "@/models/query";
+import { useInvalidateQueries } from "@/hooks/use-invalidate-query";
+import { useRoles } from "@/hooks/useRoles";
+import { errorToast, successToast } from "@/util/toast";
 import CustomSheet from "@/components/shared/CustomSheetDrawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,20 +32,6 @@ import {
 import { type UserRole } from "@/util/status";
 
 /* ------------------------------------------------------------------ */
-/*  Password generator                                                 */
-/* ------------------------------------------------------------------ */
-
-function generateTempPassword(role: string): string {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let suffix = "";
-  for (let i = 0; i < 4; i++) {
-    suffix += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return `@${role}2026${suffix}`;
-}
-
-/* ------------------------------------------------------------------ */
 /*  Props                                                              */
 /* ------------------------------------------------------------------ */
 
@@ -50,10 +42,10 @@ interface AddUserSheetProps {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Role options                                                       */
+/*  Fallback role options (used when API hasn't loaded yet)             */
 /* ------------------------------------------------------------------ */
 
-const roleOptions: { label: string; value: UserRole }[] = [
+const fallbackRoleOptions: { label: string; value: UserRole }[] = [
   { label: "Chairman", value: "chairman" },
   { label: "Admin", value: "admin" },
   { label: "Staff", value: "staff" },
@@ -69,17 +61,27 @@ export default function AddUserSheet({
   onOpenChange,
   onSuccess,
 }: AddUserSheetProps) {
-  const [tempPassword, setTempPassword] = useState(() =>
-    generateTempPassword("staff"),
-  );
+  const [tempPassword, setTempPassword] = useState<string>("");
   const [copied, setCopied] = useState(false);
+
+  /* Fetch roles from API */
+  const { data: apiRoles } = useRoles();
+
+  /* Build role options: prefer API data, fallback to static list */
+  const roleOptions = apiRoles
+    ? apiRoles.map((r) => ({
+        label: r.name,
+        value: r.name.toLowerCase() as UserRole,
+        id: r.id,
+      }))
+    : fallbackRoleOptions.map((r) => ({ ...r, id: 0 }));
 
   const {
     register,
     handleSubmit,
     control,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<AddUserFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(addUserSchema as any),
@@ -90,11 +92,27 @@ export default function AddUserSheet({
     },
   });
 
+  /* Query invalidation */
+  const { invalidateQuery } = useInvalidateQueries();
+
+  /* Mutation: add user via POST /people */
+  const addUserMutation = useMutation({
+    mutationFn: (payload: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      role_id: number;
+    }) => PeopleService.addPerson(payload),
+    onSuccess: () => {
+      invalidateQuery([QueryKeys.Get_People]);
+      invalidateQuery([QueryKeys.Get_User_List]);
+    },
+  });
+
   /* Regenerate password when role changes */
   const handleRoleChange = useCallback(
     (value: string, onChange: (v: string) => void) => {
       onChange(value);
-      setTempPassword(generateTempPassword(value));
       setCopied(false);
     },
     [],
@@ -109,16 +127,46 @@ export default function AddUserSheet({
 
   /* Submit */
   const onSubmit = (data: AddUserFormValues) => {
-    console.log("Add user data:", data, "temp password:", tempPassword);
-    onSuccess?.({
-      name: data.fullName,
-      email: data.email,
-      role: data.role as UserRole,
-    });
-    reset();
-    setTempPassword(generateTempPassword("staff"));
-    setCopied(false);
-    onOpenChange(false);
+    const nameParts = data.fullName.trim().split(/\s+/);
+    const first_name = nameParts[0] || "";
+    const last_name = nameParts.slice(1).join(" ") || "";
+
+    /* Find role_id from selected role value */
+    const selectedRole = roleOptions.find((r) => r.value === data.role);
+    const role_id = selectedRole?.id || 0;
+
+    addUserMutation.mutate(
+      { first_name, last_name, email: data.email, role_id },
+      {
+        onSuccess: (res) => {
+          /* Show the server-generated password */
+          const generatedPassword = res.data?.password || "";
+          setTempPassword(generatedPassword);
+          successToast({ title: "User", message: "User created successfully" });
+          onSuccess?.({
+            name: data.fullName,
+            email: data.email,
+            role: data.role as UserRole,
+          });
+        },
+        onError: (error: any) => {
+          errorToast({
+            title: "User",
+            message: error?.response?.data?.message || "Failed to create user",
+          });
+        },
+      },
+    );
+  };
+
+  /* Reset form when closing */
+  const handleClose = (open: boolean) => {
+    if (!open) {
+      reset();
+      setTempPassword("");
+      setCopied(false);
+    }
+    onOpenChange(open);
   };
 
   return (
@@ -126,7 +174,7 @@ export default function AddUserSheet({
       title="Add New User"
       description="Add a new user to the platform"
       active={open}
-      setActive={onOpenChange}
+      setActive={handleClose}
       showTrigger={false}
       className="w-full sm:w-3/4 md:w-125 md:min-w-125"
     >
@@ -211,29 +259,33 @@ export default function AddUserSheet({
             {errors.role && <FieldError>{errors.role.message}</FieldError>}
           </Field>
 
-          {/* ── Temporary Password (Auto-generated) ── */}
+          {/* ── Temporary Password (from server after creation) ── */}
           <Field>
             <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
-              Temporary Password (Auto-generated)
+              Temporary Password{" "}
+              {tempPassword ? "(Generated)" : "(Auto-generated after creation)"}
             </FieldLabel>
             <div className="relative">
               <Input
                 readOnly
                 value={tempPassword}
+                placeholder="Will be generated after user creation"
                 className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 pr-12 font-montserrat text-sm font-bold text-[#0f0f0f]"
               />
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6f6d6d] transition-colors hover:text-[#0f0f0f]"
-                aria-label="Copy password"
-              >
-                {copied ? (
-                  <Check className="h-4 w-4 text-[#34c759]" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-              </button>
+              {tempPassword && (
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6f6d6d] transition-colors hover:text-[#0f0f0f]"
+                  aria-label="Copy password"
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4 text-[#34c759]" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </button>
+              )}
             </div>
           </Field>
 
@@ -241,10 +293,10 @@ export default function AddUserSheet({
           <div className="flex justify-end pt-4">
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={addUserMutation.isPending}
               className="rounded-lg bg-[#8a38f5] px-6 py-2.5 font-montserrat text-sm font-bold text-[#f8f8f8] hover:bg-[#8a38f5]/90"
             >
-              {isSubmitting ? "Creating..." : "Create User"}
+              {addUserMutation.isPending ? "Creating..." : "Create User"}
             </Button>
           </div>
         </FieldGroup>

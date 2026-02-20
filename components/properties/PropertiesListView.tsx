@@ -13,10 +13,15 @@ import {
 import { SalesSummaryChart } from "./SalesSummaryChart";
 import PropertyDetailDialog, {
   mockPropertyDetails,
+  PropertyDetailDialogWrapper,
 } from "./PropertyDetailDialog";
 import AddEstateSheet from "./AddEstateSheet";
 import SuccessDialog from "@/components/shared/SuccessDialog";
 import { type UserRole } from "@/util/status";
+import { useEstates } from "@/hooks/useEstates";
+import { FetchLoadingAndEmptyState } from "@/components/shared/FetchLoadinAndEmptyState";
+import { CustomTableSkeleton } from "@/components/shared/CustomTableSkeleton";
+import CustomTableEmptyState from "@/components/shared/CustomTableEmptyState";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -146,13 +151,16 @@ export default function PropertiesListView({
     (string | number)[]
   >([]);
 
+  /* Fetch estates from API */
+  const { isLoading, data: estatesData } = useEstates();
+
   /* Role-based data filtering */
   const baseData = useMemo(() => {
     // Chairman & Admin see all estates
     // Staff sees only assigned estates (mock: all for now)
     // Realtor sees own client estates (mock: all for now)
-    return mockEstates;
-  }, []);
+    return (estatesData?.data ?? []) as any[];
+  }, [estatesData]);
 
   const filteredData = useMemo(() => {
     let result = baseData;
@@ -160,46 +168,51 @@ export default function PropertiesListView({
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(
-        (e) =>
-          e.estateName.toLowerCase().includes(q) ||
-          e.estateCode.toLowerCase().includes(q) ||
-          e.location.toLowerCase().includes(q),
+        (e: any) =>
+          (e.title || e.estateName || "").toLowerCase().includes(q) ||
+          (e.location || "").toLowerCase().includes(q),
       );
     }
 
     if (locationFilter.length > 0) {
-      result = result.filter((e) => locationFilter.includes(e.location));
+      result = result.filter((e: any) => locationFilter.includes(e.location));
     }
 
     if (availabilityFilter.length > 0) {
-      result = result.filter((e) => availabilityFilter.includes(e.status));
+      result = result.filter((e: any) => availabilityFilter.includes(e.status));
     }
 
     return result;
   }, [baseData, search, locationFilter, availabilityFilter]);
 
   /* Build renderable rows for CustomTable */
-  const tableData = filteredData.map((e) => ({
-    estateName: (
-      <button
-        type="button"
-        className="cursor-pointer font-montserrat text-sm font-bold text-[#8a38f5] underline-offset-2 hover:underline"
-        onClick={(ev) => {
-          ev.stopPropagation();
-          router.push(`/dashboard/${currentRole}/properties/${e.id}/inventory`);
-        }}
-      >
-        {e.estateName}
-      </button>
-    ),
-    estateCode: e.estateCode,
-    location: e.location,
-    totalUnits: e.totalUnits,
-    unitsSold: e.unitsSold,
-    unitsAvailable: e.unitsAvailable,
-    averagePrice: e.averagePrice,
-    status: <PropertyStatusBadge status={e.status} />,
-  }));
+  const tableData = filteredData.map((e: any) => {
+    const statValue = e.status || "Available";
+
+    return {
+      estateName: (
+        <button
+          type="button"
+          className="cursor-pointer font-montserrat text-sm font-bold text-[#8a38f5] underline-offset-2 hover:underline"
+          onClick={(ev) => {
+            ev.stopPropagation();
+            router.push(
+              `/dashboard/${currentRole}/properties/${e.id}/inventory`,
+            );
+          }}
+        >
+          {e.title || e.estateName || "Unknown"}
+        </button>
+      ),
+      estateCode: String(e.id ?? ""),
+      location: e.location || "Unknown",
+      totalUnits: e.total_units ?? 0,
+      unitsSold: e.units_sold ?? 0,
+      unitsAvailable: (e.total_units ?? 0) - (e.units_sold ?? 0),
+      averagePrice: e.average_price ? `₦${e.average_price}` : "N/A",
+      status: <PropertyStatusBadge status={statValue as PropertyStatus} />,
+    };
+  });
 
   const headers = [
     "Estate Name",
@@ -233,43 +246,56 @@ export default function PropertiesListView({
         onAddEstate={() => setAddEstateOpen(true)}
       />
 
-      {/* Table */}
-      <CustomTable
-        title="Staff"
-        searchSlot={
-          <SearchInput
-            value={search}
-            onChange={setSearch}
-            placeholder="Search"
+      <FetchLoadingAndEmptyState
+        isLoading={isLoading}
+        data={tableData.length}
+        numberOfSkeleton={5}
+        skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
+        emptyState={
+          <CustomTableEmptyState
+            headers={headers}
+            emptyMessage="No estates or properties found."
           />
         }
-        headerRight={
-          <div className="flex items-center gap-4">
-            <CustomMultiSelectFilter
-              title="Location"
-              options={locationOptions}
-              selectedValues={locationFilter}
-              onApplyFilter={setLocationFilter}
+      >
+        {/* Table */}
+        <CustomTable
+          title="Estates"
+          searchSlot={
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Search"
             />
-            <CustomMultiSelectFilter
-              title="Availability"
-              options={availabilityOptions}
-              selectedValues={availabilityFilter}
-              onApplyFilter={setAvailabilityFilter}
-            />
-          </div>
-        }
-        headers={headers}
-        data={tableData}
-        headerKeyMap={headerKeyMap}
-        onRowClick={(row, index) => {
-          const estate = filteredData[index];
-          if (estate) {
-            setSelectedPropertyId(estate.id);
-            setDialogOpen(true);
           }
-        }}
-      />
+          headerRight={
+            <div className="flex items-center gap-4">
+              <CustomMultiSelectFilter
+                title="Location"
+                options={locationOptions}
+                selectedValues={locationFilter}
+                onApplyFilter={setLocationFilter}
+              />
+              <CustomMultiSelectFilter
+                title="Availability"
+                options={availabilityOptions}
+                selectedValues={availabilityFilter}
+                onApplyFilter={setAvailabilityFilter}
+              />
+            </div>
+          }
+          headers={headers}
+          data={tableData}
+          headerKeyMap={headerKeyMap}
+          onRowClick={(row, index) => {
+            const estate = filteredData[index];
+            if (estate) {
+              setSelectedPropertyId(String(estate.id ?? ""));
+              setDialogOpen(true);
+            }
+          }}
+        />
+      </FetchLoadingAndEmptyState>
 
       {/* Sales Summary chart */}
       <SalesSummaryChart />
@@ -306,12 +332,8 @@ export default function PropertiesListView({
       )}
 
       {/* Property detail modal */}
-      <PropertyDetailDialog
-        property={
-          selectedPropertyId
-            ? (mockPropertyDetails[selectedPropertyId] ?? null)
-            : null
-        }
+      <PropertyDetailDialogWrapper
+        selectedPropertyId={selectedPropertyId}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />

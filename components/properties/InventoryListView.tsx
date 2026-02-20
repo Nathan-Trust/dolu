@@ -14,6 +14,7 @@ import {
   type NewlyAddedEstate,
 } from "./NewlyAddedEstateCard";
 import UnitDetailDialog, { mockUnitDetails } from "./UnitDetailDialog";
+import { useEstate } from "@/hooks/useEstate";
 import AddUnitSheet from "./AddUnitSheet";
 import SuccessDialog from "@/components/shared/SuccessDialog";
 import { type UserRole } from "@/util/status";
@@ -183,62 +184,67 @@ export default function InventoryListView({
     estate: string;
   } | null>(null);
 
-  const estateName = estateNameMap[estateId] ?? "Estate";
+  const { isLoading: isEstateLoading, data: estateData } = useEstate(estateId);
+
+  const estateName = estateData?.title ?? estateNameMap[estateId] ?? "Estate";
 
   const canAddUnit = role === "admin";
 
   /* Data filtering */
+  const baseUnits = estateData?.properties ?? [];
+
   const filteredData = useMemo(() => {
-    let result = mockUnits;
+    let result = baseUnits;
 
     if (search.trim()) {
       const q = search.toLowerCase();
-      result = result.filter(
-        (u) =>
-          u.unitId.toLowerCase().includes(q) ||
-          u.type.toLowerCase().includes(q) ||
-          u.assignedClient.toLowerCase().includes(q) ||
-          u.agent.name.toLowerCase().includes(q),
-      );
+      result = result.filter((p: any) => {
+        const unitId = String(p.id ?? "").toLowerCase();
+        const type = String(p.property_type ?? p.title ?? "").toLowerCase();
+        const agentName = String(p.assigned_agent ?? "").toLowerCase();
+        return unitId.includes(q) || type.includes(q) || agentName.includes(q);
+      });
     }
 
     if (assignedFilter.length > 0) {
-      result = result.filter(
-        (u) =>
-          assignedFilter.includes(u.agent.name) ||
-          assignedFilter.includes(u.assignedClient),
-      );
+      result = result.filter((p: any) => {
+        const agentName = p.assigned_agent ?? "Nil";
+        return (
+          assignedFilter.includes(agentName) || assignedFilter.includes("Nil")
+        );
+      });
     }
 
     if (statusFilter.length > 0) {
-      result = result.filter((u) => statusFilter.includes(u.status));
+      result = result.filter((p: any) => statusFilter.includes(p.status));
     }
 
     return result;
-  }, [search, assignedFilter, statusFilter]);
+  }, [search, assignedFilter, statusFilter, baseUnits]);
 
   /* Build table rows */
-  const tableData = filteredData.map((u) => ({
-    unitId: u.unitId,
-    type: u.type,
-    priceRange: u.priceRange,
-    status: <UnitStatusBadge status={u.status} />,
-    assignedClient: u.assignedClient,
+  const tableData = filteredData.map((p: any) => ({
+    unitId: String(p.id ?? ""),
+    type: p.property_type ?? p.title ?? "-",
+    priceRange: p.price ? `₦${p.price.toLocaleString()}` : "N/A",
+    status: (
+      <UnitStatusBadge status={(p.status as UnitStatus) ?? "Available"} />
+    ),
+    assignedClient: p.assigned_client ?? "Nil",
     agent: (
       <div className="flex items-center gap-2">
-        {/* Avatar placeholder */}
         <div className="flex size-6 items-center justify-center rounded-full bg-[#c8c8c8]">
           <span className="font-montserrat text-[8px] font-bold text-white">
-            {u.agent.name
+            {(String(p.assigned_agent ?? "") || "")
               .split(" ")
-              .map((n) => n[0])
+              .map((n: string) => n[0])
               .join("")}
           </span>
         </div>
         <span className="font-montserrat text-sm text-[#0f0f0f]">
-          {u.agent.name}
+          {p.assigned_agent ?? "Nil"}
         </span>
-        <RoleBadge role={u.agent.role} />
+        <RoleBadge role={(p.assigned_agent_role as UserRole) ?? "staff"} />
       </div>
     ),
   }));
@@ -319,7 +325,7 @@ export default function InventoryListView({
         onRowClick={(_, index) => {
           const unit = filteredData[index];
           if (unit) {
-            setSelectedUnitId(unit.id);
+            setSelectedUnitId(String(unit.id ?? ""));
             setDialogOpen(true);
           }
         }}
@@ -327,7 +333,43 @@ export default function InventoryListView({
 
       {/* Unit detail modal */}
       <UnitDetailDialog
-        unit={selectedUnitId ? (mockUnitDetails[selectedUnitId] ?? null) : null}
+        unit={
+          selectedUnitId
+            ? (() => {
+                const found = (baseUnits as any[]).find(
+                  (p) => String(p.id) === String(selectedUnitId),
+                );
+                if (!found) return mockUnitDetails[selectedUnitId] ?? null;
+
+                return {
+                  id: String(found.id),
+                  unitId: String(found.id),
+                  unitType: found.property_type ?? found.title ?? "",
+                  status: (found.status as UnitStatus) ?? "Available",
+                  currentStage: found.current_stage ?? "",
+                  minimumPrice: found.price
+                    ? `₦${found.price.toLocaleString()}`
+                    : "",
+                  maximumPrice: found.price
+                    ? `₦${found.price.toLocaleString()}`
+                    : "",
+                  agent: {
+                    name: found.assigned_agent ?? "",
+                    role: (found.assigned_agent_role as UserRole) ?? "staff",
+                  },
+                  propertyType: found.property_type ?? "",
+                  description: found.description ?? "",
+                  title: found.title ?? "",
+                  location: found.address ?? found.city ?? found.location ?? "",
+                  estate: estateData?.title ?? "",
+                  heroImage: found.images?.[0] ?? "/fallback-hero.png",
+                  mapImage: found.images?.[1] ?? "/fallback-map.png",
+                  galleryImages: found.images ?? [],
+                  aboutText: found.description ?? "",
+                };
+              })()
+            : null
+        }
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />
@@ -337,6 +379,7 @@ export default function InventoryListView({
         open={addUnitOpen}
         onOpenChange={setAddUnitOpen}
         estateName={estateName}
+        estateId={estateId}
         onSuccess={(unit) => {
           setSubmittedUnit(unit);
           setSuccessOpen(true);

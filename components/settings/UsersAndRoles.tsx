@@ -10,6 +10,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import {
   Popover,
@@ -32,6 +33,14 @@ import UserDetailDialog from "@/components/settings/UserDetailDialog";
 import type { UserDetail } from "@/components/settings/UserDetailDialog";
 import AddUserSheet from "@/components/settings/AddUserSheet";
 import { type UserRole } from "@/util/status";
+import { usePeople } from "@/hooks/usePeople";
+import { PeopleService } from "@/services/people";
+import { QueryKeys } from "@/models/query";
+import { useInvalidateQueries } from "@/hooks/use-invalidate-query";
+import { errorToast, successToast } from "@/util/toast";
+import { FetchLoadingAndEmptyState } from "@/components/shared/FetchLoadinAndEmptyState";
+import { CustomTableSkeleton } from "@/components/shared/CustomTableSkeleton";
+import CustomTableEmptyState from "@/components/shared/CustomTableEmptyState";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -39,7 +48,7 @@ import { type UserRole } from "@/util/status";
 
 /** Raw user record (for filtering) */
 interface RawUser {
-  id: number;
+  id: string;
   name: string;
   initials: string;
   avatarColor: string;
@@ -51,7 +60,7 @@ interface RawUser {
 
 /** Table row after rendering cells */
 interface UserTableRow {
-  id: number;
+  id: string;
   name: React.ReactNode;
   email: string;
   role: React.ReactNode;
@@ -238,10 +247,12 @@ function ActionPopover({
   user,
   onView,
   onSuspend,
+  onDelete,
 }: {
   user: RawUser;
   onView: (user: RawUser) => void;
   onSuspend: (user: RawUser) => void;
+  onDelete?: (user: RawUser) => void;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -267,7 +278,10 @@ function ActionPopover({
       icon: Trash2,
       label: "Delete User",
       danger: true,
-      onClick: () => setOpen(false),
+      onClick: () => {
+        setOpen(false);
+        onDelete?.(user);
+      },
     },
   ];
 
@@ -305,7 +319,7 @@ function ActionPopover({
 }
 
 /* ------------------------------------------------------------------ */
-/*  Mock data                                                          */
+/*  Avatar color map                                                   */
 /* ------------------------------------------------------------------ */
 
 const avatarColors: Record<UserRole, string> = {
@@ -314,99 +328,6 @@ const avatarColors: Record<UserRole, string> = {
   staff: "#34c759",
   realtor: "#8a38f5",
 };
-
-const mockUsers: RawUser[] = [
-  {
-    id: 1,
-    name: "John Ibekwe",
-    initials: "JI",
-    avatarColor: avatarColors.chairman,
-    email: "johnibekwe@email.com",
-    role: "chairman",
-    status: "Active",
-    lastLogin: "Jul 10, 2026 9:00 AM",
-  },
-  {
-    id: 2,
-    name: "John Ibekwe",
-    initials: "JI",
-    avatarColor: avatarColors.admin,
-    email: "johnibekwe@email.com",
-    role: "admin",
-    status: "Suspended",
-    lastLogin: "Jul 10, 2026 9:00 AM",
-  },
-  {
-    id: 3,
-    name: "John Ibekwe",
-    initials: "JI",
-    avatarColor: avatarColors.staff,
-    email: "johnibekwe@email.com",
-    role: "staff",
-    status: "Active",
-    lastLogin: "Jul 10, 2026 9:00 AM",
-  },
-  {
-    id: 4,
-    name: "John Ibekwe",
-    initials: "JI",
-    avatarColor: avatarColors.realtor,
-    email: "johnibekwe@email.com",
-    role: "realtor",
-    status: "Active",
-    lastLogin: "Jul 10, 2026 9:00 AM",
-  },
-  {
-    id: 5,
-    name: "John Ibekwe",
-    initials: "JI",
-    avatarColor: avatarColors.chairman,
-    email: "johnibekwe@email.com",
-    role: "chairman",
-    status: "Suspended",
-    lastLogin: "Jul 10, 2026 9:00 AM",
-  },
-  {
-    id: 6,
-    name: "John Ibekwe",
-    initials: "JI",
-    avatarColor: avatarColors.admin,
-    email: "johnibekwe@email.com",
-    role: "admin",
-    status: "Active",
-    lastLogin: "Jul 10, 2026 9:00 AM",
-  },
-  {
-    id: 7,
-    name: "John Ibekwe",
-    initials: "JI",
-    avatarColor: avatarColors.staff,
-    email: "johnibekwe@email.com",
-    role: "staff",
-    status: "Active",
-    lastLogin: "Jul 10, 2026 9:00 AM",
-  },
-  {
-    id: 8,
-    name: "John Ibekwe",
-    initials: "JI",
-    avatarColor: avatarColors.realtor,
-    email: "johnibekwe@email.com",
-    role: "realtor",
-    status: "Suspended",
-    lastLogin: "Jul 10, 2026 9:00 AM",
-  },
-  {
-    id: 9,
-    name: "John Ibekwe",
-    initials: "JI",
-    avatarColor: avatarColors.admin,
-    email: "johnibekwe@email.com",
-    role: "admin",
-    status: "Active",
-    lastLogin: "Jul 10, 2026 9:00 AM",
-  },
-];
 
 /* ------------------------------------------------------------------ */
 /*  Category filter options                                            */
@@ -436,13 +357,98 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
   const [viewUser, setViewUser] = useState<UserDetail | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [addUserOpen, setAddUserOpen] = useState(false);
-  const [suspendName, setSuspendName] = useState("");
+  const [suspendTarget, setSuspendTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [suspendOpen, setSuspendOpen] = useState(false);
   const [authorizeOpen, setAuthorizeOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [deleteAuthorizeOpen, setDeleteAuthorizeOpen] = useState(false);
 
-  const handleSuspendUser = (user: { name: string }) => {
-    setSuspendName(user.name);
+  /* Fetch people from API */
+  const { data: peopleData, isLoading, isFetching } = usePeople({ search });
+  const { invalidateQuery } = useInvalidateQueries();
+
+  /* Map API people to RawUser for the table */
+  const users: RawUser[] = useMemo(() => {
+    if (!peopleData?.data) return [];
+    return peopleData.data.map((p) => {
+      const name = `${p.first_name} ${p.last_name}`.trim();
+      const initials =
+        `${p.first_name?.[0] || ""}${p.last_name?.[0] || ""}`.toUpperCase();
+      const roleName = (p.role?.name?.toLowerCase() || "staff") as UserRole;
+      return {
+        id: p.id,
+        name,
+        initials,
+        avatarColor: avatarColors[roleName] || "#8a38f5",
+        email: p.email,
+        role: roleName,
+        status: (p.status === "suspended" ? "Suspended" : "Active") as
+          | "Active"
+          | "Suspended",
+        lastLogin: p.last_active
+          ? new Date(p.last_active).toLocaleString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            })
+          : "Never",
+      };
+    });
+  }, [peopleData]);
+
+  /* Suspend mutation */
+  const suspendMutation = useMutation({
+    mutationFn: ({ id, password }: { id: string; password: string }) =>
+      PeopleService.suspendPerson(id, password),
+    onSuccess: () => {
+      invalidateQuery([QueryKeys.Get_People]);
+      invalidateQuery([QueryKeys.Get_User_List]);
+      successToast({ title: "User", message: "User suspended successfully" });
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error: any) => {
+      errorToast({
+        title: "User",
+        message: error?.response?.data?.message || "Failed to suspend user",
+      });
+    },
+  });
+
+  /* Delete mutation */
+  const deleteMutation = useMutation({
+    mutationFn: ({ id, password }: { id: string; password: string }) =>
+      PeopleService.deletePerson(id, password),
+    onSuccess: () => {
+      invalidateQuery([QueryKeys.Get_People]);
+      invalidateQuery([QueryKeys.Get_User_List]);
+      successToast({ title: "User", message: "User deleted successfully" });
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error: any) => {
+      errorToast({
+        title: "User",
+        message: error?.response?.data?.message || "Failed to delete user",
+      });
+    },
+  });
+
+  const handleSuspendUser = (user: { id: string; name: string }) => {
+    setSuspendTarget(user);
     setSuspendOpen(true);
+  };
+
+  const handleDeleteUser = (user: { id: string; name: string }) => {
+    setDeleteTarget(user);
+    setDeleteAuthorizeOpen(true);
   };
 
   /* Step 1 → Step 2: close confirm dialog, open authorize dialog */
@@ -452,11 +458,21 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
   };
 
   /* Step 2 final: authorize with password */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleAuthorizeSuspend = (_password: string) => {
-    // TODO: API call to suspend user with password authorization
+  const handleAuthorizeSuspend = (password: string) => {
+    if (suspendTarget) {
+      suspendMutation.mutate({ id: suspendTarget.id, password });
+    }
     setAuthorizeOpen(false);
-    setSuspendName("");
+    setSuspendTarget(null);
+  };
+
+  /* Delete authorize with password */
+  const handleAuthorizeDelete = (password: string) => {
+    if (deleteTarget) {
+      deleteMutation.mutate({ id: deleteTarget.id, password });
+    }
+    setDeleteAuthorizeOpen(false);
+    setDeleteTarget(null);
   };
 
   const handleViewUser = (raw: RawUser) => {
@@ -467,26 +483,17 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
       role: raw.role,
       performance: "Excellent",
       status: raw.status,
-      lastActivity: "26-10-26 10:35:23",
-      accountCreated: "26-10-26 10:35:23",
-      weeklyReports: 34,
-      missedReports: 4,
+      lastActivity: raw.lastLogin,
+      accountCreated: raw.lastLogin,
+      weeklyReports: 0,
+      missedReports: 0,
     });
     setDialogOpen(true);
   };
 
   /* Build table rows with rendered cells */
   const tableData: UserTableRow[] = useMemo(() => {
-    let filtered = [...mockUsers];
-
-    /* search filter */
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      filtered = filtered.filter(
-        (u) =>
-          u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q),
-      );
-    }
+    let filtered = [...users];
 
     /* category (role) filter */
     if (selectedCategories.length > 0) {
@@ -516,11 +523,12 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
         <ActionPopover
           user={u}
           onView={handleViewUser}
-          onSuspend={handleSuspendUser}
+          onSuspend={(u) => handleSuspendUser({ id: u.id, name: u.name })}
+          onDelete={(u) => handleDeleteUser({ id: u.id, name: u.name })}
         />
       ),
     }));
-  }, [search, selectedCategories]);
+  }, [users, selectedCategories]);
 
   const headers = ["Name", "Email", "Role", "Status", "Last Login", "Action"];
 
@@ -536,7 +544,7 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
   return (
     <>
       <SuspendAlertDialog
-        userName={suspendName}
+        userName={suspendTarget?.name || ""}
         open={suspendOpen}
         onOpenChange={setSuspendOpen}
         onConfirm={handleConfirmSuspend}
@@ -546,42 +554,60 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
         onOpenChange={setAuthorizeOpen}
         onConfirm={handleAuthorizeSuspend}
       />
+      <AuthorizeSuspendDialog
+        open={deleteAuthorizeOpen}
+        onOpenChange={setDeleteAuthorizeOpen}
+        onConfirm={handleAuthorizeDelete}
+      />
       <UserDetailDialog
         user={viewUser}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        onSuspend={handleSuspendUser}
+        onSuspend={(u) => handleSuspendUser({ id: "", name: u.name })}
       />
       <AddUserSheet open={addUserOpen} onOpenChange={setAddUserOpen} />
-      <CustomTable
-        headers={headers}
-        data={tableData}
-        headerKeyMap={headerKeyMap}
-        searchSlot={
-          <div className="flex items-center gap-2">
-            <CustomSearchInput
-              value={search}
-              onChange={setSearch}
-              placeholder="Search"
-            />
-            <CustomMultiSelectFilter
-              title="Category"
-              options={categoryOptions}
-              selectedValues={selectedCategories}
-              onApplyFilter={setSelectedCategories}
-            />
-          </div>
+      <FetchLoadingAndEmptyState
+        data={tableData.length}
+        isLoading={isLoading}
+        numberOfSkeleton={5}
+        skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
+        emptyState={
+          <CustomTableEmptyState
+            headers={headers}
+            emptyMessage="No users found. Add a new user to get started."
+          />
         }
-        headerRight={
-          <button
-            onClick={() => setAddUserOpen(true)}
-            className="flex items-center gap-2 rounded-lg bg-[#8a38f5] px-4 py-2 font-montserrat text-sm font-semibold text-white transition-colors hover:bg-[#7a2de0]"
-          >
-            <UserPlus className="h-4 w-4" />
-            Add User
-          </button>
-        }
-      />
+      >
+        <CustomTable
+          headers={headers}
+          data={tableData}
+          headerKeyMap={headerKeyMap}
+          searchSlot={
+            <div className="flex items-center gap-2">
+              <CustomSearchInput
+                value={search}
+                onChange={setSearch}
+                placeholder="Search"
+              />
+              <CustomMultiSelectFilter
+                title="Category"
+                options={categoryOptions}
+                selectedValues={selectedCategories}
+                onApplyFilter={setSelectedCategories}
+              />
+            </div>
+          }
+          headerRight={
+            <button
+              onClick={() => setAddUserOpen(true)}
+              className="flex items-center gap-2 rounded-lg bg-[#8a38f5] px-4 py-2 font-montserrat text-sm font-semibold text-white transition-colors hover:bg-[#7a2de0]"
+            >
+              <UserPlus className="h-4 w-4" />
+              Add User
+            </button>
+          }
+        />
+      </FetchLoadingAndEmptyState>
     </>
   );
 }

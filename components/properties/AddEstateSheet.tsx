@@ -5,8 +5,13 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImagePlus, Plus, MapPin, X } from "lucide-react";
 import Image from "next/image";
+import { useMutation } from "@tanstack/react-query";
 
 import { addEstateSchema, type AddEstateFormValues } from "@/schema/properties";
+import { EstateService } from "@/services/estates";
+import { QueryKeys } from "@/models/query";
+import { useInvalidateQueries } from "@/hooks/use-invalidate-query";
+import { errorToast, successToast } from "@/util/toast";
 import CustomSheet from "@/components/shared/CustomSheetDrawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -104,14 +109,57 @@ export default function AddEstateSheet({
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [setValue]);
 
+  /* Query invalidation */
+  const { invalidateQuery } = useInvalidateQueries();
+
+  /* Mutation: create estate via POST /properties/estates */
+  const createEstateMutation = useMutation({
+    mutationFn: async (data: AddEstateFormValues) => {
+      /* Create the estate */
+      const res = await EstateService.createEstate({
+        title: data.estateName,
+        address: `${data.city}, ${data.state}`,
+        location:
+          data.longitude && data.latitude
+            ? `${data.latitude},${data.longitude}`
+            : `${data.city}, ${data.state}`,
+        country: data.country,
+      });
+
+      /* Upload cover photo if provided */
+      if (data.coverPhoto && res.data?.id) {
+        await EstateService.uploadEstateImages(res.data.id, data.coverPhoto);
+      }
+
+      return res;
+    },
+    onSuccess: () => {
+      invalidateQuery([QueryKeys.Get_Estates]);
+    },
+  });
+
   /* Submit */
   const onSubmit = (data: AddEstateFormValues) => {
-    console.log("Add estate data:", data);
-    const code = crypto.randomUUID().slice(0, 5);
-    onSuccess?.({ name: data.estateName, code });
-    reset();
-    setPreview(null);
-    onOpenChange(false);
+    createEstateMutation.mutate(data, {
+      onSuccess: (res) => {
+        const code = String(res.data?.id || crypto.randomUUID().slice(0, 5));
+        successToast({
+          title: "Estate",
+          message: "Estate created successfully",
+        });
+        onSuccess?.({ name: data.estateName, code });
+        reset();
+        setPreview(null);
+        onOpenChange(false);
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onError: (error: any) => {
+        errorToast({
+          title: "Estate",
+          message: error?.response?.data?.message || "Failed to create estate",
+        });
+      },
+    });
   };
 
   return (
@@ -421,10 +469,10 @@ export default function AddEstateSheet({
           <div className="flex justify-end">
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={createEstateMutation.isPending}
               className="w-31 rounded-lg bg-[#8a38f5] px-1 py-2 font-montserrat text-sm font-bold text-[#f8f8f8] hover:bg-[#8a38f5]/90"
             >
-              {isSubmitting ? "Publishing..." : "Publish"}
+              {createEstateMutation.isPending ? "Publishing..." : "Publish"}
             </Button>
           </div>
         </FieldGroup>
