@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { isValidRole, getRoleConfig, type UserRole } from "@/util/status";
 import SettingsClient from "./client";
@@ -31,5 +32,9 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
     notFound();
   }
 
-  return <SettingsClient role={role as UserRole} />;
+  return (
+    <Suspense>
+      <SettingsClient role={role as UserRole} />
+    </Suspense>
+  );
 }
