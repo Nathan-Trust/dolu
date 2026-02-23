@@ -249,7 +249,7 @@ export default function PropertiesListView({
       <FetchLoadingAndEmptyState
         isLoading={isLoading}
         data={tableData.length}
-        numberOfSkeleton={5}
+        numberOfSkeleton={1}
         skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
         emptyState={
           <CustomTableEmptyState

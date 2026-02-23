@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import CustomTable from "@/components/shared/CustomTable";
 import { type UserRole } from "@/util/status";
+import type { OverviewData } from "@/services/overview";
 import {
   OverviewHeader,
   TogglePill,
@@ -124,9 +125,15 @@ const clientHeaderKeyMap: Record<string, string> = {
 
 interface StaffOverviewProps {
   role: UserRole;
+  overviewData: OverviewData | null;
+  isLoading: boolean;
 }
 
-export default function StaffOverview({ role }: StaffOverviewProps) {
+export default function StaffOverview({
+  role,
+  overviewData,
+  isLoading,
+}: StaffOverviewProps) {
   const [chartToggle, setChartToggle] = useState(0);
 
   /* ── Metric cards (3 cards) ── */

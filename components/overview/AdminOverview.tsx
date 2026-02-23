@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import CustomTable from "@/components/shared/CustomTable";
 import { type UserRole } from "@/util/status";
+import type { OverviewData } from "@/services/overview";
 import {
   OverviewHeader,
   MetricCards,
@@ -70,10 +71,25 @@ type PriorityRow = Record<
 
 // ─── Mock Data ──────────────────────────────────────
 
-const metricCards: MetricCardData[] = [
-  { label: "Today's Sales", value: "₦520,001", icon: Ticket },
+const getMetricCards = (
+  overviewData: OverviewData | null,
+  isLoading: boolean,
+): MetricCardData[] => [
+  {
+    label: "Today's Sales",
+    value: isLoading
+      ? "Loading..."
+      : `₦${overviewData?.today_sales?.toLocaleString() || "0"}`,
+    icon: Ticket,
+  },
   { label: "Missed Reports", value: "520", icon: FileText },
-  { label: "Realtors", value: "45/520", icon: Heart },
+  {
+    label: "Realtors",
+    value: isLoading
+      ? "Loading..."
+      : `${overviewData?.active_realtors_count || 0}/520`,
+    icon: Heart,
+  },
   { label: "Pending Invoices", value: "14", icon: Calculator },
 ];
 
@@ -266,9 +282,15 @@ const priorityListData: PriorityRow[] = [
 
 interface AdminOverviewProps {
   role: UserRole;
+  overviewData: OverviewData | null;
+  isLoading: boolean;
 }
 
-export default function AdminOverview({ role }: AdminOverviewProps) {
+export default function AdminOverview({
+  role,
+  overviewData,
+  isLoading,
+}: AdminOverviewProps) {
   const [salesContribToggle, setSalesContribToggle] = useState(0);
   const [salesTrendToggle, setSalesTrendToggle] = useState(0);
   const [complianceToggle, setComplianceToggle] = useState(0);
@@ -286,7 +308,7 @@ export default function AdminOverview({ role }: AdminOverviewProps) {
     <div className="flex flex-col gap-8">
       <OverviewHeader role={role} />
 
-      <MetricCards cards={metricCards} />
+      <MetricCards cards={getMetricCards(overviewData, isLoading)} />
 
       {/* ─── Quick Actions ───────────────────── */}
       <div className="flex flex-wrap gap-2 md:gap-8">

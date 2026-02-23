@@ -12,6 +12,7 @@ export enum QueryKeys {
   Get_Role_List = "Get_Role_List",
   Get_Permission_List = "Get_Permission_List",
   Get_Administrator_List = "Get_Administrator_List",
+  Get_Overview = "Get_Overview",
 }
 
 export enum QueryErrCodes {
@@ -20,4 +21,5 @@ export enum QueryErrCodes {
   Clients = "Clients",
   Properties = "Properties",
   Estates = "Estates",
+  Overview = "Overview",
 }

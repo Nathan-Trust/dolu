@@ -32,7 +32,7 @@ import CustomMultiSelectFilter from "@/components/shared/CustomMultiSelectFilter
 import UserDetailDialog from "@/components/settings/UserDetailDialog";
 import type { UserDetail } from "@/components/settings/UserDetailDialog";
 import AddUserSheet from "@/components/settings/AddUserSheet";
-import { type UserRole } from "@/util/status";
+import { type UserRole, isValidRole } from "@/util/status";
 import { usePeople } from "@/hooks/usePeople";
 import { PeopleService } from "@/services/people";
 import { QueryKeys } from "@/models/query";
@@ -327,6 +327,7 @@ const avatarColors: Record<UserRole, string> = {
   admin: "#3b82f6",
   staff: "#34c759",
   realtor: "#8a38f5",
+  manager: "#ff6b35",
 };
 
 /* ------------------------------------------------------------------ */
@@ -338,6 +339,7 @@ const categoryOptions = [
   { label: "Admin", value: "admin" },
   { label: "Staff", value: "staff" },
   { label: "Realtor", value: "realtor" },
+  { label: "Manager", value: "manager" },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -370,7 +372,7 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
   const [deleteAuthorizeOpen, setDeleteAuthorizeOpen] = useState(false);
 
   /* Fetch people from API */
-  const { data: peopleData, isLoading, isFetching } = usePeople({ search });
+  const { data: peopleData, isLoading, refetch } = usePeople({ search });
   const { invalidateQuery } = useInvalidateQueries();
 
   /* Map API people to RawUser for the table */
@@ -380,7 +382,8 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
       const name = `${p.first_name} ${p.last_name}`.trim();
       const initials =
         `${p.first_name?.[0] || ""}${p.last_name?.[0] || ""}`.toUpperCase();
-      const roleName = (p.role?.name?.toLowerCase() || "staff") as UserRole;
+      const roleNameRaw = p.role?.name?.toLowerCase() || "staff";
+      const roleName = isValidRole(roleNameRaw) ? roleNameRaw : "staff";
       return {
         id: p.id,
         name,
@@ -412,6 +415,7 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
     onSuccess: () => {
       invalidateQuery([QueryKeys.Get_People]);
       invalidateQuery([QueryKeys.Get_User_List]);
+      refetch();
       successToast({ title: "User", message: "User suspended successfully" });
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -430,6 +434,7 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
     onSuccess: () => {
       invalidateQuery([QueryKeys.Get_People]);
       invalidateQuery([QueryKeys.Get_User_List]);
+      refetch();
       successToast({ title: "User", message: "User deleted successfully" });
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -565,11 +570,18 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
         onOpenChange={setDialogOpen}
         onSuspend={(u) => handleSuspendUser({ id: "", name: u.name })}
       />
-      <AddUserSheet open={addUserOpen} onOpenChange={setAddUserOpen} />
+      <AddUserSheet
+        open={addUserOpen}
+        onOpenChange={setAddUserOpen}
+        onSuccess={() => {
+          // Refresh the users list after successful creation
+          refetch();
+        }}
+      />
       <FetchLoadingAndEmptyState
         data={tableData.length}
         isLoading={isLoading}
-        numberOfSkeleton={5}
+        numberOfSkeleton={1}
         skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
         emptyState={
           <CustomTableEmptyState

@@ -267,7 +267,7 @@ export default function PeopleListView({
       <FetchLoadingAndEmptyState
         isLoading={isLoading}
         data={tableData.length}
-        numberOfSkeleton={5}
+        numberOfSkeleton={1}
         skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
         emptyState={
           <CustomTableEmptyState

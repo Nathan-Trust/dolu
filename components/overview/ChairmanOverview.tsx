@@ -16,6 +16,7 @@ import {
 import { Ticket, UserCheck, Heart, Building2, Search } from "lucide-react";
 import CustomTable from "@/components/shared/CustomTable";
 import { type UserRole } from "@/util/status";
+import type { OverviewData } from "@/services/overview";
 import {
   OverviewHeader,
   MetricCards,
@@ -45,33 +46,11 @@ type ReportRow = Record<
 
 // ─── Mock Data ──────────────────────────────────────
 
-const salesTrendData = [
-  { month: "JAN", revenue: 2000000 },
-  { month: "FEB", revenue: 3500000 },
-  { month: "MAR", revenue: 3000000 },
-  { month: "APR", revenue: 4500000 },
-  { month: "MAY", revenue: 5000000 },
-  { month: "JUN", revenue: 7000000 },
-  { month: "JUL", revenue: 8500000 },
-  { month: "AUG", revenue: 7000000 },
-  { month: "SEP", revenue: 6000000 },
-  { month: "OCT", revenue: 6500000 },
-  { month: "NOV", revenue: 7000000 },
-  { month: "DEC", revenue: 8000000 },
-];
-
 const inventoryData = [
   { name: "Sold", value: 65 },
   { name: "Available", value: 35 },
 ];
 const INVENTORY_COLORS = ["#3b82f6", "#e0e0e0"];
-
-const metricCards: MetricCardData[] = [
-  { label: "Total Sales", value: "₦520,001", icon: Ticket },
-  { label: "Active Staff", value: "520", icon: UserCheck },
-  { label: "Active Realtors", value: "520", icon: Heart },
-  { label: "Available Properties", value: "520", icon: Building2 },
-];
 
 const reportPeople = [
   { name: "John Ibekwe", initials: "JI", color: "#f59e0b" },
@@ -93,11 +72,64 @@ const reportTitles = [
 
 interface ChairmanOverviewProps {
   role: UserRole;
+  overviewData: OverviewData | null;
+  isLoading: boolean;
 }
 
-export default function ChairmanOverview({ role }: ChairmanOverviewProps) {
+export default function ChairmanOverview({
+  role,
+  overviewData,
+  isLoading,
+}: ChairmanOverviewProps) {
   const [salesToggle, setSalesToggle] = useState(0);
   const [inventoryToggle, setInventoryToggle] = useState(0);
+
+  const metricCards: MetricCardData[] = [
+    {
+      label: "Total Sales",
+      value: isLoading
+        ? "Loading..."
+        : `₦${overviewData?.today_sales?.toLocaleString() || "0"}`,
+      icon: Ticket,
+    },
+    {
+      label: "Active Staff",
+      value: isLoading
+        ? "Loading..."
+        : String(overviewData?.active_staff_count || "0"),
+      icon: UserCheck,
+    },
+    {
+      label: "Active Realtors",
+      value: isLoading
+        ? "Loading..."
+        : String(overviewData?.active_realtors_count || "0"),
+      icon: Heart,
+    },
+    {
+      label: "Available Properties",
+      value: isLoading
+        ? "Loading..."
+        : String(overviewData?.available_properties || "0"),
+      icon: Building2,
+    },
+  ];
+
+  // Transform sales_trend from API into chart format
+  const salesTrendData = overviewData?.sales_trend
+    ? overviewData.sales_trend.map((value, index) => {
+        const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        return { month: days[index] || `Day ${index + 1}`, revenue: value };
+      })
+    : [
+        { month: "Mon", revenue: 0 },
+        { month: "Tue", revenue: 0 },
+        { month: "Wed", revenue: 0 },
+        { month: "Thu", revenue: 0 },
+        { month: "Fri", revenue: 0 },
+        { month: "Sat", revenue: 0 },
+        { month: "Sun", revenue: 0 },
+      ];
 
   // Build report table data
   const reportsData: ReportRow[] = reportTitles.map((title, i) => {

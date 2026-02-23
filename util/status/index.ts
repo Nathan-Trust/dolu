@@ -1,4 +1,4 @@
-export type UserRole = "chairman" | "admin" | "staff" | "realtor";
+export type UserRole = "chairman" | "admin" | "staff" | "realtor" | "manager";
 
 export interface RoleConfig {
   label: string;
@@ -34,12 +34,18 @@ export const roleConfigs: Record<UserRole, RoleConfig> = {
     textColor: "#CB30E0",
     description: "You can submit deals and track your activity.",
   },
+  manager: {
+    label: "Manager",
+    bgColor: "#FFE5D9",
+    textColor: "#FF6B35",
+    description: "You oversee team operations and coordinate activities.",
+  },
 };
 
 export function getRoleConfig(role: UserRole): RoleConfig {
-  return roleConfigs[role];
+  return roleConfigs[role] || roleConfigs.staff;
 }
 
 export function isValidRole(role: string): role is UserRole {
-  return ["chairman", "admin", "staff", "realtor"].includes(role);
+  return ["chairman", "admin", "staff", "realtor", "manager"].includes(role);
 }

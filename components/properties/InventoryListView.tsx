@@ -18,6 +18,9 @@ import { useEstate } from "@/hooks/useEstate";
 import AddUnitSheet from "./AddUnitSheet";
 import SuccessDialog from "@/components/shared/SuccessDialog";
 import { type UserRole } from "@/util/status";
+import { FetchLoadingAndEmptyState } from "@/components/shared/FetchLoadinAndEmptyState";
+import { CustomTableSkeleton } from "@/components/shared/CustomTableSkeleton";
+import CustomTableEmptyState from "@/components/shared/CustomTableEmptyState";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -294,42 +297,55 @@ export default function InventoryListView({
       </div>
 
       {/* Inventory table */}
-      <CustomTable
-        title={estateName}
-        searchSlot={
-          <SearchInput
-            value={search}
-            onChange={setSearch}
-            placeholder="Search"
+      <FetchLoadingAndEmptyState
+        isLoading={isEstateLoading}
+        data={tableData.length}
+        numberOfSkeleton={1}
+        skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
+        emptyState={
+          <CustomTableEmptyState
+            headers={headers}
+            emptyMessage="No units found for this estate."
           />
         }
-        headerRight={
-          <div className="flex items-center gap-4">
-            <CustomMultiSelectFilter
-              title="Assigned to"
-              options={assignedToOptions}
-              selectedValues={assignedFilter}
-              onApplyFilter={setAssignedFilter}
+      >
+        <CustomTable
+          title={estateName}
+          searchSlot={
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Search"
             />
-            <CustomMultiSelectFilter
-              title="Status"
-              options={statusOptions}
-              selectedValues={statusFilter}
-              onApplyFilter={setStatusFilter}
-            />
-          </div>
-        }
-        headers={headers}
-        data={tableData}
-        headerKeyMap={headerKeyMap}
-        onRowClick={(_, index) => {
-          const unit = filteredData[index];
-          if (unit) {
-            setSelectedUnitId(String(unit.id ?? ""));
-            setDialogOpen(true);
           }
-        }}
-      />
+          headerRight={
+            <div className="flex items-center gap-4">
+              <CustomMultiSelectFilter
+                title="Assigned to"
+                options={assignedToOptions}
+                selectedValues={assignedFilter}
+                onApplyFilter={setAssignedFilter}
+              />
+              <CustomMultiSelectFilter
+                title="Status"
+                options={statusOptions}
+                selectedValues={statusFilter}
+                onApplyFilter={setStatusFilter}
+              />
+            </div>
+          }
+          headers={headers}
+          data={tableData}
+          headerKeyMap={headerKeyMap}
+          onRowClick={(_, index) => {
+            const unit = filteredData[index];
+            if (unit) {
+              setSelectedUnitId(String(unit.id ?? ""));
+              setDialogOpen(true);
+            }
+          }}
+        />
+      </FetchLoadingAndEmptyState>
 
       {/* Unit detail modal */}
       <UnitDetailDialog

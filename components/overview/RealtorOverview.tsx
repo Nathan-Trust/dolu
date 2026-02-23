@@ -4,6 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Tag, TicketCheck, FileText, Search, UserPlus } from "lucide-react";
 import CustomTable from "@/components/shared/CustomTable";
 import { type UserRole } from "@/util/status";
+import type { OverviewData } from "@/services/overview";
 import { OverviewHeader } from "@/components/overview";
 
 // ─── Types ──────────────────────────────────────────
@@ -94,9 +95,15 @@ const DEAL_COLORS = ["#0088ff", "#8a38f5", "#e0c8f0", "#ff38e0", "#38c8f5"];
 
 interface RealtorOverviewProps {
   role: UserRole;
+  overviewData: OverviewData | null;
+  isLoading: boolean;
 }
 
-export default function RealtorOverview({ role }: RealtorOverviewProps) {
+export default function RealtorOverview({
+  role,
+  overviewData,
+  isLoading,
+}: RealtorOverviewProps) {
   return (
     <div className="flex flex-col gap-8">
       {/* Header */}
