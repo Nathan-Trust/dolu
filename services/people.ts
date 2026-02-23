@@ -124,6 +124,22 @@ export class PeopleService {
     }
   }
 
+  public static async activatePerson(
+    id: string,
+    password: string,
+  ): Promise<ApiWrapper<null>> {
+    try {
+      const response = await axiosInstance.patch<ApiWrapper<null>>(
+        `/people/${id}/activate`,
+        { password },
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error activating person:", error);
+      throw error;
+    }
+  }
+
   public static async deletePerson(
     id: string,
     password: string,

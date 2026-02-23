@@ -6,6 +6,7 @@ import {
   MoreHorizontal,
   Eye,
   Pause,
+  Play,
   KeyRound,
   Trash2,
   X,
@@ -172,10 +173,12 @@ function AuthorizeSuspendDialog({
   open,
   onOpenChange,
   onConfirm,
+  title = "Authorize Action",
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: (password: string) => void;
+  title?: string;
 }) {
   const [password, setPassword] = useState("");
 
@@ -192,11 +195,11 @@ function AuthorizeSuspendDialog({
 
         <AlertDialogHeader className="items-center text-center">
           <AlertDialogTitle className="font-montserrat text-base font-bold text-[#0f0f0f]">
-            Authorize Suspension
+            {title}
           </AlertDialogTitle>
           {/* Empty description to avoid accessibility warning */}
           <AlertDialogDescription className="sr-only">
-            Enter your password to authorize the suspension
+            Enter your password to authorize this action
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -247,14 +250,18 @@ function ActionPopover({
   user,
   onView,
   onSuspend,
+  onActivate,
   onDelete,
 }: {
   user: RawUser;
   onView: (user: RawUser) => void;
   onSuspend: (user: RawUser) => void;
+  onActivate: (user: RawUser) => void;
   onDelete?: (user: RawUser) => void;
 }) {
   const [open, setOpen] = useState(false);
+
+  const isSuspended = user.status === "Suspended";
 
   const actions = [
     {
@@ -266,11 +273,15 @@ function ActionPopover({
       },
     },
     {
-      icon: Pause,
-      label: "Suspend",
+      icon: isSuspended ? Play : Pause,
+      label: isSuspended ? "Activate" : "Suspend",
       onClick: () => {
         setOpen(false);
-        onSuspend(user);
+        if (isSuspended) {
+          onActivate(user);
+        } else {
+          onSuspend(user);
+        }
       },
     },
     { icon: KeyRound, label: "Reset Password", onClick: () => setOpen(false) },
@@ -365,6 +376,11 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
   } | null>(null);
   const [suspendOpen, setSuspendOpen] = useState(false);
   const [authorizeOpen, setAuthorizeOpen] = useState(false);
+  const [activateTarget, setActivateTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [activateAuthorizeOpen, setActivateAuthorizeOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     name: string;
@@ -416,6 +432,8 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
       invalidateQuery([QueryKeys.Get_People]);
       invalidateQuery([QueryKeys.Get_User_List]);
       refetch();
+      setAuthorizeOpen(false);
+      setSuspendTarget(null);
       successToast({ title: "User", message: "User suspended successfully" });
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -435,6 +453,8 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
       invalidateQuery([QueryKeys.Get_People]);
       invalidateQuery([QueryKeys.Get_User_List]);
       refetch();
+      setDeleteAuthorizeOpen(false);
+      setDeleteTarget(null);
       successToast({ title: "User", message: "User deleted successfully" });
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -442,6 +462,27 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
       errorToast({
         title: "User",
         message: error?.response?.data?.message || "Failed to delete user",
+      });
+    },
+  });
+
+  /* Activate mutation */
+  const activateMutation = useMutation({
+    mutationFn: ({ id, password }: { id: string; password: string }) =>
+      PeopleService.activatePerson(id, password),
+    onSuccess: () => {
+      invalidateQuery([QueryKeys.Get_People]);
+      invalidateQuery([QueryKeys.Get_User_List]);
+      refetch();
+      setActivateAuthorizeOpen(false);
+      setActivateTarget(null);
+      successToast({ title: "User", message: "User activated successfully" });
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error: any) => {
+      errorToast({
+        title: "User",
+        message: error?.response?.data?.message || "Failed to activate user",
       });
     },
   });
@@ -456,6 +497,11 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
     setDeleteAuthorizeOpen(true);
   };
 
+  const handleActivateUser = (user: { id: string; name: string }) => {
+    setActivateTarget(user);
+    setActivateAuthorizeOpen(true);
+  };
+
   /* Step 1 → Step 2: close confirm dialog, open authorize dialog */
   const handleConfirmSuspend = () => {
     setSuspendOpen(false);
@@ -467,8 +513,6 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
     if (suspendTarget) {
       suspendMutation.mutate({ id: suspendTarget.id, password });
     }
-    setAuthorizeOpen(false);
-    setSuspendTarget(null);
   };
 
   /* Delete authorize with password */
@@ -476,8 +520,13 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
     if (deleteTarget) {
       deleteMutation.mutate({ id: deleteTarget.id, password });
     }
-    setDeleteAuthorizeOpen(false);
-    setDeleteTarget(null);
+  };
+
+  /* Activate authorize with password */
+  const handleAuthorizeActivate = (password: string) => {
+    if (activateTarget) {
+      activateMutation.mutate({ id: activateTarget.id, password });
+    }
   };
 
   const handleViewUser = (raw: RawUser) => {
@@ -529,6 +578,7 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
           user={u}
           onView={handleViewUser}
           onSuspend={(u) => handleSuspendUser({ id: u.id, name: u.name })}
+          onActivate={(u) => handleActivateUser({ id: u.id, name: u.name })}
           onDelete={(u) => handleDeleteUser({ id: u.id, name: u.name })}
         />
       ),
@@ -558,11 +608,19 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
         open={authorizeOpen}
         onOpenChange={setAuthorizeOpen}
         onConfirm={handleAuthorizeSuspend}
+        title="Authorize Suspension"
       />
       <AuthorizeSuspendDialog
         open={deleteAuthorizeOpen}
         onOpenChange={setDeleteAuthorizeOpen}
         onConfirm={handleAuthorizeDelete}
+        title="Authorize Deletion"
+      />
+      <AuthorizeSuspendDialog
+        open={activateAuthorizeOpen}
+        onOpenChange={setActivateAuthorizeOpen}
+        onConfirm={handleAuthorizeActivate}
+        title="Authorize Activation"
       />
       <UserDetailDialog
         user={viewUser}
