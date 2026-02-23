@@ -28,6 +28,7 @@ const tabsByRole: Record<UserRole, readonly FinanceSubTab[]> = {
   chairman: ["Overview"],
   staff: ["Overview", "Sales Income"],
   realtor: [], // never rendered — realtor is redirected
+  manager: ["Overview"],
 };
 
 interface FinanceClientProps {

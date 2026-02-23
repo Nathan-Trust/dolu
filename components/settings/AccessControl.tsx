@@ -85,6 +85,16 @@ const defaultPermissions: Record<UserRole, PermissionMap> = {
     Reports: { View: true, Create: false, Edit: false, Delete: false },
     Settings: { View: false, Create: false, Edit: false, Delete: false },
   },
+  manager: {
+    Overview: { View: true, Create: false, Edit: false, Delete: false },
+    People: { View: true, Create: false, Edit: false, Delete: false },
+    Clients: { View: true, Create: true, Edit: true, Delete: false },
+    Properties: { View: true, Create: false, Edit: false, Delete: false },
+    Finance: { View: true, Create: false, Edit: false, Delete: false },
+    Maps: { View: true, Create: true, Edit: false, Delete: false },
+    Reports: { View: true, Create: true, Edit: false, Delete: false },
+    Settings: { View: false, Create: false, Edit: false, Delete: false },
+  },
 };
 
 /* Deep-clone helper to avoid mutating the default object */
@@ -103,6 +113,7 @@ const roleBadgeBg: Record<UserRole, string> = {
   admin: getRoleConfig("admin").bgColor,
   staff: getRoleConfig("staff").bgColor,
   realtor: getRoleConfig("realtor").bgColor,
+  manager: getRoleConfig("manager").bgColor,
 };
 
 /* ------------------------------------------------------------------ */
