@@ -10,7 +10,7 @@ import { decrypt } from "@/services/encryption";
 // Retrieve baseURL from environment variable
 const baseURL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://1tnrb5l2-4050.uks1.devtunnels.ms/api/v1";
+  "https://dolu-properties-api.onrender.com/api/v1";
 
 // Create an Axios instance
 const axiosInstance = axios.create({
