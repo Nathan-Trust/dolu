@@ -27,7 +27,7 @@ interface CustomTableProps<T extends TableRowData = TableRowData> {
   headerClassName?: string;
   rowClassName?: string;
   searchSlot?: React.ReactNode;
-  title?: string;
+  title?: React.ReactNode;
   headerRight?: React.ReactNode;
   onRowClick?: (row: T, index: number) => void;
 }
@@ -209,11 +209,14 @@ const CustomTable = <T extends TableRowData>({
       {(title || searchSlot || headerRight) && (
         <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-4 md:gap-8">
-            {title && (
-              <p className="font-montserrat text-sm font-bold text-[#0f0f0f]">
-                {title}
-              </p>
-            )}
+            {title &&
+              (typeof title === "string" ? (
+                <p className="font-montserrat text-sm font-bold text-[#0f0f0f]">
+                  {title}
+                </p>
+              ) : (
+                title
+              ))}
             {searchSlot}
           </div>
           {headerRight}
