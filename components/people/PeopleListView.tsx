@@ -264,50 +264,56 @@ export default function PeopleListView({
       {/* Page header */}
       <PeopleHeader activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <FetchLoadingAndEmptyState
-        isLoading={isLoading}
-        data={tableData.length}
-        numberOfSkeleton={1}
-        skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
-        emptyState={
-          <CustomTableEmptyState
-            headers={headers}
-            emptyMessage={`No ${activeTab === 0 ? "staff members" : "realtors"} found.`}
-          />
-        }
-      >
-        {/* Table */}
-        <CustomTable
-          title={activeTab === 0 ? "Staff" : "Realtors"}
-          searchSlot={
+      {/* Always-visible toolbar */}
+      <div className="w-full overflow-hidden rounded-lg bg-[#f8f8f8] p-4">
+        <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-4 md:gap-8">
+            <p className="font-montserrat text-sm font-bold text-[#0f0f0f]">
+              {activeTab === 0 ? "Staff" : "Realtors"}
+            </p>
             <SearchInput
               value={search}
               onChange={setSearch}
               placeholder="Search by name..."
             />
+          </div>
+          <div className="flex items-center gap-2">
+            <CustomMultiSelectFilter
+              title="Status"
+              options={statusOptions}
+              selectedValues={statusFilter}
+              onApplyFilter={setStatusFilter}
+            />
+            <CustomMultiSelectFilter
+              title="Performance"
+              options={performanceOptions}
+              selectedValues={performanceFilter}
+              onApplyFilter={setPerformanceFilter}
+            />
+          </div>
+        </div>
+
+        <FetchLoadingAndEmptyState
+          isLoading={isLoading}
+          data={tableData.length}
+          numberOfSkeleton={1}
+          skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
+          emptyState={
+            <CustomTableEmptyState
+              headers={headers}
+              emptyMessage={`No ${activeTab === 0 ? "staff members" : "realtors"} found.`}
+            />
           }
-          headerRight={
-            <div className="flex items-center gap-2">
-              <CustomMultiSelectFilter
-                title="Status"
-                options={statusOptions}
-                selectedValues={statusFilter}
-                onApplyFilter={setStatusFilter}
-              />
-              <CustomMultiSelectFilter
-                title="Performance"
-                options={performanceOptions}
-                selectedValues={performanceFilter}
-                onApplyFilter={setPerformanceFilter}
-              />
-            </div>
-          }
-          headers={headers}
-          data={tableData}
-          headerKeyMap={headerKeyMap}
-          onRowClick={handleRowClick}
-        />
-      </FetchLoadingAndEmptyState>
+        >
+          {/* Table */}
+          <CustomTable
+            headers={headers}
+            data={tableData}
+            headerKeyMap={headerKeyMap}
+            onRowClick={handleRowClick}
+          />
+        </FetchLoadingAndEmptyState>
+      </div>
 
       {/* Person detail dialog */}
       <PersonDetailDialogWrapper

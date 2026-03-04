@@ -246,56 +246,62 @@ export default function PropertiesListView({
         onAddEstate={() => setAddEstateOpen(true)}
       />
 
-      <FetchLoadingAndEmptyState
-        isLoading={isLoading}
-        data={tableData.length}
-        numberOfSkeleton={1}
-        skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
-        emptyState={
-          <CustomTableEmptyState
-            headers={headers}
-            emptyMessage="No estates or properties found."
-          />
-        }
-      >
-        {/* Table */}
-        <CustomTable
-          title="Estates"
-          searchSlot={
+      {/* Always-visible toolbar */}
+      <div className="w-full overflow-hidden rounded-lg bg-[#f8f8f8] p-4">
+        <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-4 md:gap-8">
+            <p className="font-montserrat text-sm font-bold text-[#0f0f0f]">
+              Estates
+            </p>
             <SearchInput
               value={search}
               onChange={setSearch}
               placeholder="Search"
             />
+          </div>
+          <div className="flex items-center gap-4">
+            <CustomMultiSelectFilter
+              title="Location"
+              options={locationOptions}
+              selectedValues={locationFilter}
+              onApplyFilter={setLocationFilter}
+            />
+            <CustomMultiSelectFilter
+              title="Availability"
+              options={availabilityOptions}
+              selectedValues={availabilityFilter}
+              onApplyFilter={setAvailabilityFilter}
+            />
+          </div>
+        </div>
+
+        <FetchLoadingAndEmptyState
+          isLoading={isLoading}
+          data={tableData.length}
+          numberOfSkeleton={1}
+          skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
+          emptyState={
+            <CustomTableEmptyState
+              headers={headers}
+              emptyMessage="No estates or properties found."
+            />
           }
-          headerRight={
-            <div className="flex items-center gap-4">
-              <CustomMultiSelectFilter
-                title="Location"
-                options={locationOptions}
-                selectedValues={locationFilter}
-                onApplyFilter={setLocationFilter}
-              />
-              <CustomMultiSelectFilter
-                title="Availability"
-                options={availabilityOptions}
-                selectedValues={availabilityFilter}
-                onApplyFilter={setAvailabilityFilter}
-              />
-            </div>
-          }
-          headers={headers}
-          data={tableData}
-          headerKeyMap={headerKeyMap}
-          onRowClick={(row, index) => {
-            const estate = filteredData[index];
-            if (estate) {
-              setSelectedPropertyId(String(estate.id ?? ""));
-              setDialogOpen(true);
-            }
-          }}
-        />
-      </FetchLoadingAndEmptyState>
+        >
+          {/* Table */}
+          <CustomTable
+            headers={headers}
+            data={tableData}
+            headerKeyMap={headerKeyMap}
+            onRowClick={(row, index) => {
+              const estate = filteredData[index];
+              if (estate) {
+                setSelectedPropertyId(String(estate.id ?? ""));
+                setDialogOpen(true);
+              }
+            }}
+          />
+        </FetchLoadingAndEmptyState>
+      </div>
 
       {/* Sales Summary chart */}
       <SalesSummaryChart />

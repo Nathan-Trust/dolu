@@ -636,48 +636,50 @@ export default function UsersAndRoles({ role }: UsersAndRolesProps) {
           refetch();
         }}
       />
-      <FetchLoadingAndEmptyState
-        data={tableData.length}
-        isLoading={isLoading}
-        numberOfSkeleton={1}
-        skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
-        emptyState={
-          <CustomTableEmptyState
+      {/* Always-visible toolbar */}
+      <div className="w-full overflow-hidden rounded-lg bg-[#f8f8f8] p-4">
+        <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-4 md:gap-8">
+            <CustomSearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Search"
+            />
+            <CustomMultiSelectFilter
+              title="Category"
+              options={categoryOptions}
+              selectedValues={selectedCategories}
+              onApplyFilter={setSelectedCategories}
+            />
+          </div>
+          <button
+            onClick={() => setAddUserOpen(true)}
+            className="flex items-center gap-2 rounded-lg bg-[#8a38f5] px-4 py-2 font-montserrat text-sm font-semibold text-white transition-colors hover:bg-[#7a2de0]"
+          >
+            <UserPlus className="h-4 w-4" />
+            Add User
+          </button>
+        </div>
+
+        <FetchLoadingAndEmptyState
+          data={tableData.length}
+          isLoading={isLoading}
+          numberOfSkeleton={1}
+          skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
+          emptyState={
+            <CustomTableEmptyState
+              headers={headers}
+              emptyMessage="No users found. Add a new user to get started."
+            />
+          }
+        >
+          <CustomTable
             headers={headers}
-            emptyMessage="No users found. Add a new user to get started."
+            data={tableData}
+            headerKeyMap={headerKeyMap}
           />
-        }
-      >
-        <CustomTable
-          headers={headers}
-          data={tableData}
-          headerKeyMap={headerKeyMap}
-          searchSlot={
-            <div className="flex items-center gap-2">
-              <CustomSearchInput
-                value={search}
-                onChange={setSearch}
-                placeholder="Search"
-              />
-              <CustomMultiSelectFilter
-                title="Category"
-                options={categoryOptions}
-                selectedValues={selectedCategories}
-                onApplyFilter={setSelectedCategories}
-              />
-            </div>
-          }
-          headerRight={
-            <button
-              onClick={() => setAddUserOpen(true)}
-              className="flex items-center gap-2 rounded-lg bg-[#8a38f5] px-4 py-2 font-montserrat text-sm font-semibold text-white transition-colors hover:bg-[#7a2de0]"
-            >
-              <UserPlus className="h-4 w-4" />
-              Add User
-            </button>
-          }
-        />
-      </FetchLoadingAndEmptyState>
+        </FetchLoadingAndEmptyState>
+      </div>
     </>
   );
 }

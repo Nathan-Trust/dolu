@@ -189,61 +189,67 @@ export default function ClientsListView({
         onAddClient={() => setAddClientOpen(true)}
       />
 
-      <FetchLoadingAndEmptyState
-        isLoading={isLoading}
-        data={tableData.length}
-        numberOfSkeleton={5}
-        skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
-        emptyState={
-          <CustomTableEmptyState
-            headers={headers}
-            emptyMessage="No clients found. Add a new client to get started."
-          />
-        }
-      >
-        <CustomTable
-          title="Clients"
-          searchSlot={
+      {/* Always-visible toolbar */}
+      <div className="w-full overflow-hidden rounded-lg bg-[#f8f8f8] p-4">
+        <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-4 md:gap-8">
+            <p className="font-montserrat text-sm font-bold text-[#0f0f0f]">
+              Clients
+            </p>
             <SearchInput
               value={search}
               onChange={setSearch}
               placeholder="Search"
             />
+          </div>
+          <div className="flex items-center gap-4">
+            <CustomMultiSelectFilter
+              title="Sales Stage"
+              options={salesStageOptions}
+              selectedValues={salesStageFilter}
+              onApplyFilter={setSalesStageFilter}
+            />
+            <CustomMultiSelectFilter
+              title="Assigned to"
+              options={assignedToOptions}
+              selectedValues={assignedToFilter}
+              onApplyFilter={setAssignedToFilter}
+            />
+            <CustomMultiSelectFilter
+              title="Inactivity"
+              options={inactivityOptions}
+              selectedValues={inactivityFilter}
+              onApplyFilter={setInactivityFilter}
+            />
+          </div>
+        </div>
+
+        <FetchLoadingAndEmptyState
+          isLoading={isLoading}
+          data={tableData.length}
+          numberOfSkeleton={5}
+          skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
+          emptyState={
+            <CustomTableEmptyState
+              headers={headers}
+              emptyMessage="No clients found. Add a new client to get started."
+            />
           }
-          headerRight={
-            <div className="flex items-center gap-4">
-              <CustomMultiSelectFilter
-                title="Sales Stage"
-                options={salesStageOptions}
-                selectedValues={salesStageFilter}
-                onApplyFilter={setSalesStageFilter}
-              />
-              <CustomMultiSelectFilter
-                title="Assigned to"
-                options={assignedToOptions}
-                selectedValues={assignedToFilter}
-                onApplyFilter={setAssignedToFilter}
-              />
-              <CustomMultiSelectFilter
-                title="Inactivity"
-                options={inactivityOptions}
-                selectedValues={inactivityFilter}
-                onApplyFilter={setInactivityFilter}
-              />
-            </div>
-          }
-          headers={headers}
-          data={tableData}
-          headerKeyMap={headerKeyMap}
-          onRowClick={(row, index) => {
-            const clientId = tableData[index]?.clientCode;
-            if (clientId) {
-              setSelectedClientId(clientId);
-              setDialogOpen(true);
-            }
-          }}
-        />
-      </FetchLoadingAndEmptyState>
+        >
+          <CustomTable
+            headers={headers}
+            data={tableData}
+            headerKeyMap={headerKeyMap}
+            onRowClick={(row, index) => {
+              const clientId = tableData[index]?.clientCode;
+              if (clientId) {
+                setSelectedClientId(clientId);
+                setDialogOpen(true);
+              }
+            }}
+          />
+        </FetchLoadingAndEmptyState>
+      </div>
 
       {/* Client detail modal */}
       <ClientDetailDialogWrapper

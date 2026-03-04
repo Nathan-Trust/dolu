@@ -212,66 +212,70 @@ export default function ReportsListView({
       {/* Page header */}
       <ReportsHeader activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <FetchLoadingAndEmptyState
-        isLoading={isLoading}
-        data={tableData.length}
-        numberOfSkeleton={1}
-        skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
-        emptyState={
-          <CustomTableEmptyState
-            headers={headers}
-            emptyMessage={`No ${activeTab === 0 ? "staff" : "realtor"} reports found.`}
-          />
-        }
-      >
-        {/* Table */}
-        <CustomTable
-          title={ReportDropdown}
-          searchSlot={
+      {/* Always-visible toolbar */}
+      <div className="w-full overflow-hidden rounded-lg bg-[#f8f8f8] p-4">
+        <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-4 md:gap-8">
+            {ReportDropdown}
             <SearchInput
               value={search}
               onChange={setSearch}
               placeholder="Search"
             />
+          </div>
+          <div className="flex items-center gap-2">
+            <CustomMultiSelectFilter
+              title="Report Type"
+              options={reportTypeOptions}
+              selectedValues={[]}
+              onApplyFilter={() => {}}
+            />
+            <CustomMultiSelectFilter
+              title="Status"
+              options={statusOptions}
+              selectedValues={statusFilter}
+              onApplyFilter={setStatusFilter}
+            />
+            <CustomMultiSelectFilter
+              title="Role"
+              options={roleFilterOptions}
+              selectedValues={roleFilter}
+              onApplyFilter={setRoleFilter}
+            />
+            <CustomMultiSelectFilter
+              title="Date Range"
+              options={[]}
+              selectedValues={[]}
+              onApplyFilter={() => {}}
+            />
+          </div>
+        </div>
+
+        <FetchLoadingAndEmptyState
+          isLoading={isLoading}
+          data={tableData.length}
+          numberOfSkeleton={1}
+          skeleton={<CustomTableSkeleton headers={headers} rows={5} />}
+          emptyState={
+            <CustomTableEmptyState
+              headers={headers}
+              emptyMessage={`No ${activeTab === 0 ? "staff" : "realtor"} reports found.`}
+            />
           }
-          headerRight={
-            <div className="flex items-center gap-2">
-              <CustomMultiSelectFilter
-                title="Report Type"
-                options={reportTypeOptions}
-                selectedValues={[]}
-                onApplyFilter={() => {}}
-              />
-              <CustomMultiSelectFilter
-                title="Status"
-                options={statusOptions}
-                selectedValues={statusFilter}
-                onApplyFilter={setStatusFilter}
-              />
-              <CustomMultiSelectFilter
-                title="Role"
-                options={roleFilterOptions}
-                selectedValues={roleFilter}
-                onApplyFilter={setRoleFilter}
-              />
-              <CustomMultiSelectFilter
-                title="Date Range"
-                options={[]}
-                selectedValues={[]}
-                onApplyFilter={() => {}}
-              />
-            </div>
-          }
-          headers={headers}
-          data={tableData}
-          headerKeyMap={headerKeyMap}
-          onRowClick={(row) => {
-            const id = row._id as string;
-            setSelectedPersonId(id);
-            setDialogOpen(true);
-          }}
-        />
-      </FetchLoadingAndEmptyState>
+        >
+          {/* Table */}
+          <CustomTable
+            headers={headers}
+            data={tableData}
+            headerKeyMap={headerKeyMap}
+            onRowClick={(row) => {
+              const id = row._id as string;
+              setSelectedPersonId(id);
+              setDialogOpen(true);
+            }}
+          />
+        </FetchLoadingAndEmptyState>
+      </div>
 
       {/* Person report detail dialog */}
       <PersonDetailDialogWrapper
