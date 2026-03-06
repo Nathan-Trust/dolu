@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { isValidRole, getRoleConfig, type UserRole } from "@/util/status";
-import FinanceClient from "./client";
+import CommissionsClient from "./client";
 
-interface FinancePageProps {
+interface CommissionsPageProps {
   params: Promise<{ role: string }>;
 }
 
 export async function generateMetadata({
   params,
-}: FinancePageProps): Promise<Metadata> {
+}: CommissionsPageProps): Promise<Metadata> {
   const { role } = await params;
 
   if (!isValidRole(role)) {
@@ -19,22 +19,24 @@ export async function generateMetadata({
   const config = getRoleConfig(role as UserRole);
 
   return {
-    title: `Finance - ${config.label} | Dolu`,
-    description: `${config.label} financial overview for Real Estate Management System PLUS`,
+    title: `Commissions - ${config.label} | Dolu`,
+    description: `${config.label} commission tracking for Real Estate Management System PLUS`,
   };
 }
 
-export default async function FinancePage({ params }: FinancePageProps) {
+export default async function CommissionsPage({
+  params,
+}: CommissionsPageProps) {
   const { role } = await params;
 
   if (!isValidRole(role)) {
     notFound();
   }
 
-  // Realtors have no Finance access
-  if (role === "realtor") {
-    redirect(`/dashboard/${role}/overview`);
+  // Only admin can access Commissions
+  if (role !== "admin") {
+    redirect(`/dashboard/${role}/finance`);
   }
 
-  return <FinanceClient />;
+  return <CommissionsClient />;
 }

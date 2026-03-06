@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import CustomTable from "@/components/shared/CustomTable";
 import SearchInput from "@/components/shared/CustomSearchInput";
 import CustomMultiSelectFilter from "@/components/shared/CustomMultiSelectFilter";
-import { Download, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AddStaffSalarySheet from "@/components/finance/AddStaffSalarySheet";
 
@@ -15,13 +15,10 @@ import AddStaffSalarySheet from "@/components/finance/AddStaffSalarySheet";
 interface SalaryPaymentRecord {
   [key: string]: React.ReactNode | string | number | null | object;
   id: number;
+  staffName: string;
   month: string;
-  staffMember: string;
-  role: string;
-  baseSalary: string;
-  bonuses: string;
-  deductions: string;
-  netSalary: string;
+  paymentDate: string;
+  netAmount: string;
   status: string;
 }
 
@@ -30,61 +27,18 @@ interface SalaryPaymentRecord {
 /* ------------------------------------------------------------------ */
 
 const mockSalaryPaymentsData: SalaryPaymentRecord[] = [
-  {
-    id: 1,
-    month: "July 2026",
-    staffMember: "John Doe",
-    role: "Sales Manager",
-    baseSalary: "₦500,000",
-    bonuses: "₦100,000",
-    deductions: "₦50,000",
-    netSalary: "₦550,000",
-    status: "Paid",
-  },
-  {
-    id: 2,
-    month: "July 2026",
-    staffMember: "Jane Smith",
-    role: "Marketing Lead",
-    baseSalary: "₦450,000",
-    bonuses: "₦80,000",
-    deductions: "₦40,000",
-    netSalary: "₦490,000",
-    status: "Paid",
-  },
-  {
-    id: 3,
-    month: "July 2026",
-    staffMember: "Mike Ross",
-    role: "Property Consultant",
-    baseSalary: "₦350,000",
-    bonuses: "₦50,000",
-    deductions: "₦30,000",
-    netSalary: "₦370,000",
-    status: "Pending",
-  },
-  {
-    id: 4,
-    month: "July 2026",
-    staffMember: "Sarah Wilson",
-    role: "Admin Officer",
-    baseSalary: "₦280,000",
-    bonuses: "₦20,000",
-    deductions: "₦25,000",
-    netSalary: "₦275,000",
-    status: "Pending",
-  },
-  {
-    id: 5,
-    month: "July 2026",
-    staffMember: "David Brown",
-    role: "Finance Officer",
-    baseSalary: "₦400,000",
-    bonuses: "₦60,000",
-    deductions: "₦35,000",
-    netSalary: "₦425,000",
-    status: "Paid",
-  },
+  { id: 1, staffName: "John Doe", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦550,000", status: "Paid" },
+  { id: 2, staffName: "Jane Smith", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦490,000", status: "Paid" },
+  { id: 3, staffName: "Mike Ross", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦370,000", status: "Pending" },
+  { id: 4, staffName: "Sarah Wilson", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦275,000", status: "Pending" },
+  { id: 5, staffName: "David Brown", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦425,000", status: "Paid" },
+  { id: 6, staffName: "Lisa Anderson", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦320,000", status: "Paid" },
+  { id: 7, staffName: "James Taylor", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦410,000", status: "Pending" },
+  { id: 8, staffName: "Emma Wilson", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦380,000", status: "Paid" },
+  { id: 9, staffName: "Robert Clark", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦450,000", status: "Pending" },
+  { id: 10, staffName: "Sophie Davis", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦290,000", status: "Paid" },
+  { id: 11, staffName: "Daniel White", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦350,000", status: "Paid" },
+  { id: 12, staffName: "Grace Martin", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦310,000", status: "Pending" },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -92,12 +46,8 @@ const mockSalaryPaymentsData: SalaryPaymentRecord[] = [
 /* ------------------------------------------------------------------ */
 
 const summaryStats = {
-  period: "July 2026",
-  totalSalaries: "₦2,110,000",
   totalPaid: "₦1,465,000",
   totalPending: "₦645,000",
-  totalBonuses: "₦310,000",
-  totalDeductions: "₦180,000",
 };
 
 /* ------------------------------------------------------------------ */
@@ -128,10 +78,6 @@ function SalaryStatusBadge({ status }: { status: string }) {
 /*  Filter options                                                     */
 /* ------------------------------------------------------------------ */
 
-const roleOptions = Array.from(
-  new Set(mockSalaryPaymentsData.map((r) => r.role)),
-).map((role) => ({ label: role, value: role }));
-
 const statusOptions = Array.from(
   new Set(mockSalaryPaymentsData.map((r) => r.status)),
 ).map((s) => ({ label: s, value: s }));
@@ -140,25 +86,13 @@ const statusOptions = Array.from(
 /*  Table config                                                       */
 /* ------------------------------------------------------------------ */
 
-const headers = [
-  "Month",
-  "Staff Member",
-  "Role",
-  "Base Salary",
-  "Bonuses",
-  "Deductions",
-  "Net Salary",
-  "Status",
-];
+const headers = ["Staff Name", "Month", "Payment Date", "Net Amount", "Status"];
 
 const headerKeyMap: Record<string, string> = {
+  "Staff Name": "staffName",
   Month: "month",
-  "Staff Member": "staffMember",
-  Role: "role",
-  "Base Salary": "baseSalary",
-  Bonuses: "bonuses",
-  Deductions: "deductions",
-  "Net Salary": "netSalary",
+  "Payment Date": "paymentDate",
+  "Net Amount": "netAmount",
   Status: "statusBadge",
 };
 
@@ -168,7 +102,6 @@ const headerKeyMap: Record<string, string> = {
 
 export default function SalaryPayments() {
   const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState<(string | number)[]>([]);
   const [statusFilter, setStatusFilter] = useState<(string | number)[]>([]);
   const [addSalaryOpen, setAddSalaryOpen] = useState(false);
 
@@ -180,18 +113,12 @@ export default function SalaryPayments() {
       const q = search.toLowerCase();
       rows = rows.filter(
         (r) =>
+          r.staffName.toLowerCase().includes(q) ||
           r.month.toLowerCase().includes(q) ||
-          r.staffMember.toLowerCase().includes(q) ||
-          r.role.toLowerCase().includes(q) ||
-          r.baseSalary.toLowerCase().includes(q) ||
-          r.netSalary.toLowerCase().includes(q) ||
+          r.paymentDate.toLowerCase().includes(q) ||
+          r.netAmount.toLowerCase().includes(q) ||
           r.status.toLowerCase().includes(q),
       );
-    }
-
-    /* Role filter */
-    if (roleFilter.length > 0) {
-      rows = rows.filter((r) => roleFilter.includes(r.role));
     }
 
     /* Status filter */
@@ -203,54 +130,34 @@ export default function SalaryPayments() {
       ...r,
       statusBadge: <SalaryStatusBadge status={r.status} />,
     }));
-  }, [search, roleFilter, statusFilter]);
+  }, [search, statusFilter]);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Action buttons */}
-      <div className="flex flex-col items-end gap-2 sm:flex-row">
+      {/* Action button */}
+      <div className="flex items-end">
         <Button
           onClick={() => setAddSalaryOpen(true)}
           className="gap-1 rounded-lg bg-[#f3f3f3] px-2 py-1 font-montserrat text-sm font-bold text-[#0f0f0f] hover:bg-[#e0e0e0]"
         >
           <Plus size={18} />
-          Add Salary Payment
-        </Button>
-        <Button className="gap-1 rounded-lg bg-[#8a38f5] px-2 py-1 font-montserrat text-sm font-bold text-[#f8f8f8] hover:bg-[#7828e0]">
-          Download Report
-          <Download size={18} />
+          Add Staff Salary Module
         </Button>
       </div>
 
       {/* Summary stats */}
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+      <div className="flex flex-col gap-2">
         <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
-          <span className="font-normal">Period</span>
-          <span className="font-bold">{summaryStats.period}</span>
-        </div>
-        <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
-          <span className="font-normal">Total Salaries</span>
-          <span className="font-bold">{summaryStats.totalSalaries}</span>
-        </div>
-        <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
-          <span className="font-normal">Paid</span>
+          <span className="font-normal">Total Paid</span>
           <span className="font-bold text-[#34c759]">
             {summaryStats.totalPaid}
           </span>
         </div>
         <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
-          <span className="font-normal">Pending</span>
+          <span className="font-normal">Total Pending</span>
           <span className="font-bold text-[#8a38f5]">
             {summaryStats.totalPending}
           </span>
-        </div>
-        <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
-          <span className="font-normal">Bonuses</span>
-          <span className="font-bold">{summaryStats.totalBonuses}</span>
-        </div>
-        <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
-          <span className="font-normal">Deductions</span>
-          <span className="font-bold">{summaryStats.totalDeductions}</span>
         </div>
       </div>
 
@@ -264,20 +171,12 @@ export default function SalaryPayments() {
               placeholder="Search"
             />
           </div>
-          <div className="flex items-center gap-4">
-            <CustomMultiSelectFilter
-              title="Role"
-              options={roleOptions}
-              selectedValues={roleFilter}
-              onApplyFilter={setRoleFilter}
-            />
-            <CustomMultiSelectFilter
-              title="Status"
-              options={statusOptions}
-              selectedValues={statusFilter}
-              onApplyFilter={setStatusFilter}
-            />
-          </div>
+          <CustomMultiSelectFilter
+            title="Status"
+            options={statusOptions}
+            selectedValues={statusFilter}
+            onApplyFilter={setStatusFilter}
+          />
         </div>
 
         <CustomTable

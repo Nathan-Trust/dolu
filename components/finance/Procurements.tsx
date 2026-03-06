@@ -15,12 +15,9 @@ interface ProcurementRecord {
   [key: string]: React.ReactNode | string | number | null | object;
   id: number;
   date: string;
-  vendor: string;
-  item: string;
-  quantity: string;
-  unitPrice: string;
-  totalAmount: string;
-  status: string;
+  category: string;
+  description: string;
+  amount: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -31,52 +28,86 @@ const mockProcurementsData: ProcurementRecord[] = [
   {
     id: 1,
     date: "2 Jul, 2026",
-    vendor: "Office Depot Ltd",
-    item: "Office Furniture",
-    quantity: "10 Units",
-    unitPrice: "₦150,000",
-    totalAmount: "₦1,500,000",
-    status: "Delivered",
+    category: "Operations",
+    description: "Office rent – January",
+    amount: "₦2,500,000",
   },
   {
     id: 2,
-    date: "5 Jul, 2026",
-    vendor: "Tech Solutions Co",
-    item: "Computers & Laptops",
-    quantity: "5 Units",
-    unitPrice: "₦350,000",
-    totalAmount: "₦1,750,000",
-    status: "Pending",
+    date: "2 Jul, 2026",
+    category: "Marketing",
+    description: "Property listing ads",
+    amount: "₦850,000",
   },
   {
     id: 3,
-    date: "8 Jul, 2026",
-    vendor: "Construction Materials Inc",
-    item: "Building Materials",
-    quantity: "1 Lot",
-    unitPrice: "₦5,000,000",
-    totalAmount: "₦5,000,000",
-    status: "Delivered",
+    date: "2 Jul, 2026",
+    category: "Logistics",
+    description: "Site inspection transport",
+    amount: "₦120,000",
   },
   {
     id: 4,
-    date: "10 Jul, 2026",
-    vendor: "Marketing Agency",
-    item: "Billboard Advertising",
-    quantity: "3 Months",
-    unitPrice: "₦400,000",
-    totalAmount: "₦1,200,000",
-    status: "Pending",
+    date: "2 Jul, 2026",
+    category: "Utilities",
+    description: "Electricity & internet",
+    amount: "₦95,000",
   },
   {
     id: 5,
-    date: "12 Jul, 2026",
-    vendor: "Vehicle Rentals Ltd",
-    item: "Company Vehicles",
-    quantity: "2 Units",
-    unitPrice: "₦800,000",
-    totalAmount: "₦1,600,000",
-    status: "Delivered",
+    date: "2 Jul, 2026",
+    category: "Legal",
+    description: "Title verification fees",
+    amount: "₦400,000",
+  },
+  {
+    id: 6,
+    date: "2 Jul, 2026",
+    category: "Operations",
+    description: "Office supplies",
+    amount: "₦150,000",
+  },
+  {
+    id: 7,
+    date: "2 Jul, 2026",
+    category: "Marketing",
+    description: "Billboard advertising",
+    amount: "₦1,200,000",
+  },
+  {
+    id: 8,
+    date: "2 Jul, 2026",
+    category: "Logistics",
+    description: "Vehicle maintenance",
+    amount: "₦350,000",
+  },
+  {
+    id: 9,
+    date: "2 Jul, 2026",
+    category: "Utilities",
+    description: "Water & sanitation",
+    amount: "₦75,000",
+  },
+  {
+    id: 10,
+    date: "2 Jul, 2026",
+    category: "Legal",
+    description: "Property survey fees",
+    amount: "₦600,000",
+  },
+  {
+    id: 11,
+    date: "2 Jul, 2026",
+    category: "Operations",
+    description: "Staff training",
+    amount: "₦250,000",
+  },
+  {
+    id: 12,
+    date: "2 Jul, 2026",
+    category: "Marketing",
+    description: "Social media campaigns",
+    amount: "₦180,000",
   },
 ];
 
@@ -86,65 +117,28 @@ const mockProcurementsData: ProcurementRecord[] = [
 
 const summaryStats = {
   period: "1 Jan - 30 Jan",
-  totalProcurements: "₦24,050,000",
-  delivered: "₦18,100,000",
-  pending: "₦5,950,000",
+  totalExpenses: "₦134,235,040",
 };
-
-/* ------------------------------------------------------------------ */
-/*  Procurement-status badge                                           */
-/* ------------------------------------------------------------------ */
-
-const statusStyles: Record<string, { bg: string; text: string }> = {
-  Delivered: { bg: "bg-[#ddf6e2]", text: "text-[#34c759]" },
-  Pending: { bg: "bg-[#f2d5ff]", text: "text-[#8a38f5]" },
-  Cancelled: { bg: "bg-[#ffe5e5]", text: "text-[#ff383c]" },
-};
-
-function ProcurementStatusBadge({ status }: { status: string }) {
-  const style = statusStyles[status] ?? {
-    bg: "bg-[#f3f3f3]",
-    text: "text-[#6f6d6d]",
-  };
-  return (
-    <span
-      className={`inline-flex items-center justify-center rounded-lg px-1 py-0.5 font-montserrat text-[9px] font-semibold ${style.bg} ${style.text}`}
-    >
-      {status}
-    </span>
-  );
-}
 
 /* ------------------------------------------------------------------ */
 /*  Filter options                                                     */
 /* ------------------------------------------------------------------ */
 
-const statusOptions = Array.from(
-  new Set(mockProcurementsData.map((r) => r.status)),
-).map((s) => ({ label: s, value: s }));
+const categoryOptions = Array.from(
+  new Set(mockProcurementsData.map((r) => r.category)),
+).map((c) => ({ label: c, value: c }));
 
 /* ------------------------------------------------------------------ */
 /*  Table config                                                       */
 /* ------------------------------------------------------------------ */
 
-const headers = [
-  "Date",
-  "Vendor",
-  "Item",
-  "Quantity",
-  "Unit Price",
-  "Total Amount",
-  "Status",
-];
+const headers = ["Date", "Category", "Description", "Amount"];
 
 const headerKeyMap: Record<string, string> = {
   Date: "date",
-  Vendor: "vendor",
-  Item: "item",
-  Quantity: "quantity",
-  "Unit Price": "unitPrice",
-  "Total Amount": "totalAmount",
-  Status: "statusBadge",
+  Category: "category",
+  Description: "description",
+  Amount: "amount",
 };
 
 /* ------------------------------------------------------------------ */
@@ -153,7 +147,7 @@ const headerKeyMap: Record<string, string> = {
 
 export default function Procurements() {
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<(string | number)[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState<(string | number)[]>([]);
 
   const tableData = useMemo(() => {
     let rows = mockProcurementsData;
@@ -164,33 +158,27 @@ export default function Procurements() {
       rows = rows.filter(
         (r) =>
           r.date.toLowerCase().includes(q) ||
-          r.vendor.toLowerCase().includes(q) ||
-          r.item.toLowerCase().includes(q) ||
-          r.quantity.toLowerCase().includes(q) ||
-          r.unitPrice.toLowerCase().includes(q) ||
-          r.totalAmount.toLowerCase().includes(q) ||
-          r.status.toLowerCase().includes(q),
+          r.category.toLowerCase().includes(q) ||
+          r.description.toLowerCase().includes(q) ||
+          r.amount.toLowerCase().includes(q),
       );
     }
 
-    /* Status filter */
-    if (statusFilter.length > 0) {
-      rows = rows.filter((r) => statusFilter.includes(r.status));
+    /* Category filter */
+    if (categoryFilter.length > 0) {
+      rows = rows.filter((r) => categoryFilter.includes(r.category));
     }
 
-    return rows.map((r) => ({
-      ...r,
-      statusBadge: <ProcurementStatusBadge status={r.status} />,
-    }));
-  }, [search, statusFilter]);
+    return rows;
+  }, [search, categoryFilter]);
 
   return (
     <div className="flex flex-col gap-4">
       {/* Action buttons */}
-      <div className="flex flex-col items-end gap-2 sm:flex-row">
+      <div className="flex items-end gap-2">
         <Button className="gap-1 rounded-lg bg-[#f3f3f3] px-2 py-1 font-montserrat text-sm font-bold text-[#0f0f0f] hover:bg-[#e0e0e0]">
           <Plus size={18} />
-          Add Procurement
+          Add Expense
         </Button>
         <Button className="gap-1 rounded-lg bg-[#8a38f5] px-2 py-1 font-montserrat text-sm font-bold text-[#f8f8f8] hover:bg-[#7828e0]">
           Download Report
@@ -205,20 +193,8 @@ export default function Procurements() {
           <span className="font-bold">{summaryStats.period}</span>
         </div>
         <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
-          <span className="font-normal">Total Procurements</span>
-          <span className="font-bold">{summaryStats.totalProcurements}</span>
-        </div>
-        <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
-          <span className="font-normal">Delivered</span>
-          <span className="font-bold text-[#34c759]">
-            {summaryStats.delivered}
-          </span>
-        </div>
-        <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
-          <span className="font-normal">Pending</span>
-          <span className="font-bold text-[#8a38f5]">
-            {summaryStats.pending}
-          </span>
+          <span className="font-normal">Total Expenses</span>
+          <span className="font-bold">{summaryStats.totalExpenses}</span>
         </div>
       </div>
 
@@ -233,10 +209,10 @@ export default function Procurements() {
             />
           </div>
           <CustomMultiSelectFilter
-            title="Status"
-            options={statusOptions}
-            selectedValues={statusFilter}
-            onApplyFilter={setStatusFilter}
+            title="Category"
+            options={categoryOptions}
+            selectedValues={categoryFilter}
+            onApplyFilter={setCategoryFilter}
           />
         </div>
 

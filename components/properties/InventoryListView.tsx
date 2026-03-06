@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useMemo } from "react";
@@ -15,6 +16,7 @@ import {
 } from "./NewlyAddedEstateCard";
 import UnitDetailDialog, { mockUnitDetails } from "./UnitDetailDialog";
 import { useEstate } from "@/hooks/useEstate";
+import { useEstates } from "@/hooks/useEstates";
 import AddUnitSheet from "./AddUnitSheet";
 import SuccessDialog from "@/components/shared/SuccessDialog";
 import { type UserRole } from "@/util/status";
@@ -92,44 +94,21 @@ const mockUnits: UnitRecord[] = [
   },
 ];
 
-const mockNewEstates: NewlyAddedEstate[] = [
-  {
-    id: "ne1",
-    name: "Peace Prime Estate",
-    location: "Asokoro, Abuja",
-    totalUnits: 24,
-    availableUnits: 4,
-    sold: 20,
-    timeAgo: "Just now",
-  },
-  {
-    id: "ne2",
-    name: "Peace Prime Estate",
-    location: "Asokoro, Abuja",
-    totalUnits: 24,
-    availableUnits: 4,
-    sold: 20,
-    timeAgo: "Just now",
-  },
-  {
-    id: "ne3",
-    name: "Peace Prime Estate",
-    location: "Asokoro, Abuja",
-    totalUnits: 24,
-    availableUnits: 4,
-    sold: 20,
-    timeAgo: "2 Mins ago",
-  },
-  {
-    id: "ne4",
-    name: "Peace Prime Estate",
-    location: "Asokoro, Abuja",
-    totalUnits: 24,
-    availableUnits: 4,
-    sold: 20,
-    timeAgo: "2 Days ago",
-  },
-];
+/* ------------------------------------------------------------------ */
+/*  Time-ago helper                                                    */
+/* ------------------------------------------------------------------ */
+
+function timeAgo(dateStr?: string | null): string {
+  if (!dateStr) return "";
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins} Min${mins > 1 ? "s" : ""} ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} Hour${hours > 1 ? "s" : ""} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} Day${days > 1 ? "s" : ""} ago`;
+}
 
 /* Estate name lookup (mock) */
 const estateNameMap: Record<string, string> = {
@@ -188,8 +167,28 @@ export default function InventoryListView({
   } | null>(null);
 
   const { isLoading: isEstateLoading, data: estateData } = useEstate(estateId);
+  const { data: allEstatesData } = useEstates();
 
   const estateName = estateData?.title ?? estateNameMap[estateId] ?? "Estate";
+
+  /* Map real estates to NewlyAddedEstate cards */
+  const newlyAddedEstates: NewlyAddedEstate[] = useMemo(() => {
+    const estates = allEstatesData?.data ?? [];
+    return estates.map((e) => {
+      const props = e.properties ?? [];
+      const sold = props.filter((p) => p.status === "Sold").length;
+      const available = props.filter((p) => p.status === "Available").length;
+      return {
+        id: String(e.id),
+        name: e.title,
+        location: e.location ?? e.city ?? "",
+        totalUnits: props.length,
+        availableUnits: available,
+        sold,
+        timeAgo: timeAgo(e.created_at),
+      };
+    });
+  }, [allEstatesData]);
 
   const canAddUnit = role === "admin";
 
@@ -427,7 +426,7 @@ export default function InventoryListView({
           Newly Added Estates
         </p>
         <div className="flex gap-5.5 overflow-x-auto">
-          {mockNewEstates.map((estate) => (
+          {newlyAddedEstates.map((estate) => (
             <NewlyAddedEstateCard
               key={estate.id}
               estate={estate}

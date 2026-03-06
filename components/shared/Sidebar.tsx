@@ -53,15 +53,28 @@ const getMenuItems = (role: UserRole): MenuItem[] => [
             // Chairman sees Overview only; Admin sees all; Staff sees Sales Income
             ...(role === "admin"
               ? [
-                  { label: "Sales Income", href: `/dashboard/${role}/finance` },
-                  { label: "Expenses", href: `/dashboard/${role}/finance` },
-                  { label: "Invoices", href: `/dashboard/${role}/finance` },
+                  {
+                    label: "Sales Income",
+                    href: `/dashboard/${role}/finance/sales-income`,
+                  },
+                  {
+                    label: "Commissions",
+                    href: `/dashboard/${role}/finance/commissions`,
+                  },
+                  {
+                    label: "Expenses",
+                    href: `/dashboard/${role}/finance/expenses`,
+                  },
+                  {
+                    label: "Invoices",
+                    href: `/dashboard/${role}/finance/invoices`,
+                  },
                 ]
               : role === "staff"
                 ? [
                     {
                       label: "Sales Income",
-                      href: `/dashboard/${role}/finance`,
+                      href: `/dashboard/${role}/finance/sales-income`,
                     },
                   ]
                 : []),
