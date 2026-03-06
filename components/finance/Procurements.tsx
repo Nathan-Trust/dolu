@@ -4,21 +4,22 @@ import { useState, useMemo } from "react";
 import CustomTable from "@/components/shared/CustomTable";
 import SearchInput from "@/components/shared/CustomSearchInput";
 import CustomMultiSelectFilter from "@/components/shared/CustomMultiSelectFilter";
-import { Download } from "lucide-react";
+import { Download, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import InvoiceDetailDialog from "@/components/finance/InvoiceDetailDialog";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-interface InvoiceRecord {
+interface ProcurementRecord {
   [key: string]: React.ReactNode | string | number | null | object;
   id: number;
-  invoiceNumber: string;
-  client: string;
-  amount: string;
-  dueDate: string;
+  date: string;
+  vendor: string;
+  item: string;
+  quantity: string;
+  unitPrice: string;
+  totalAmount: string;
   status: string;
 }
 
@@ -26,110 +27,56 @@ interface InvoiceRecord {
 /*  Mock data                                                          */
 /* ------------------------------------------------------------------ */
 
-const mockInvoicesData: InvoiceRecord[] = [
+const mockProcurementsData: ProcurementRecord[] = [
   {
     id: 1,
-    invoiceNumber: "1013",
-    client: "Peter Abbey",
-    amount: "₦15,000,000",
-    dueDate: "2 Jul, 2026",
-    status: "Paid",
+    date: "2 Jul, 2026",
+    vendor: "Office Depot Ltd",
+    item: "Office Furniture",
+    quantity: "10 Units",
+    unitPrice: "₦150,000",
+    totalAmount: "₦1,500,000",
+    status: "Delivered",
   },
   {
     id: 2,
-    invoiceNumber: "1013",
-    client: "Peter Abbey",
-    amount: "₦15,000,000",
-    dueDate: "2 Jul, 2026",
-    status: "Paid",
+    date: "5 Jul, 2026",
+    vendor: "Tech Solutions Co",
+    item: "Computers & Laptops",
+    quantity: "5 Units",
+    unitPrice: "₦350,000",
+    totalAmount: "₦1,750,000",
+    status: "Pending",
   },
   {
     id: 3,
-    invoiceNumber: "1013",
-    client: "Peter Abbey",
-    amount: "₦15,000,000",
-    dueDate: "2 Jul, 2026",
-    status: "Pending",
+    date: "8 Jul, 2026",
+    vendor: "Construction Materials Inc",
+    item: "Building Materials",
+    quantity: "1 Lot",
+    unitPrice: "₦5,000,000",
+    totalAmount: "₦5,000,000",
+    status: "Delivered",
   },
   {
     id: 4,
-    invoiceNumber: "1013",
-    client: "Peter Abbey",
-    amount: "₦15,000,000",
-    dueDate: "2 Jul, 2026",
-    status: "Paid",
+    date: "10 Jul, 2026",
+    vendor: "Marketing Agency",
+    item: "Billboard Advertising",
+    quantity: "3 Months",
+    unitPrice: "₦400,000",
+    totalAmount: "₦1,200,000",
+    status: "Pending",
   },
   {
     id: 5,
-    invoiceNumber: "1013",
-    client: "Peter Abbey",
-    amount: "₦15,000,000",
-    dueDate: "2 Jul, 2026",
-    status: "Overdue",
-  },
-  {
-    id: 6,
-    invoiceNumber: "1013",
-    client: "Peter Abbey",
-    amount: "₦15,000,000",
-    dueDate: "2 Jul, 2026",
-    status: "Paid",
-  },
-  {
-    id: 7,
-    invoiceNumber: "1013",
-    client: "Peter Abbey",
-    amount: "₦15,000,000",
-    dueDate: "2 Jul, 2026",
-    status: "Pending",
-  },
-  {
-    id: 8,
-    invoiceNumber: "1013",
-    client: "Peter Abbey",
-    amount: "₦15,000,000",
-    dueDate: "2 Jul, 2026",
-    status: "Paid",
-  },
-  {
-    id: 9,
-    invoiceNumber: "1013",
-    client: "Peter Abbey",
-    amount: "₦15,000,000",
-    dueDate: "2 Jul, 2026",
-    status: "Pending",
-  },
-  {
-    id: 10,
-    invoiceNumber: "1013",
-    client: "Peter Abbey",
-    amount: "₦15,000,000",
-    dueDate: "2 Jul, 2026",
-    status: "Overdue",
-  },
-  {
-    id: 11,
-    invoiceNumber: "1013",
-    client: "Peter Abbey",
-    amount: "₦15,000,000",
-    dueDate: "2 Jul, 2026",
-    status: "Pending",
-  },
-  {
-    id: 12,
-    invoiceNumber: "1013",
-    client: "Peter Abbey",
-    amount: "₦15,000,000",
-    dueDate: "2 Jul, 2026",
-    status: "Overdue",
-  },
-  {
-    id: 13,
-    invoiceNumber: "1013",
-    client: "Peter Abbey",
-    amount: "₦15,000,000",
-    dueDate: "2 Jul, 2026",
-    status: "Overdue",
+    date: "12 Jul, 2026",
+    vendor: "Vehicle Rentals Ltd",
+    item: "Company Vehicles",
+    quantity: "2 Units",
+    unitPrice: "₦800,000",
+    totalAmount: "₦1,600,000",
+    status: "Delivered",
   },
 ];
 
@@ -139,20 +86,22 @@ const mockInvoicesData: InvoiceRecord[] = [
 
 const summaryStats = {
   period: "1 Jan - 30 Jan",
-  totalExpenses: "₦134,235,040",
+  totalProcurements: "₦24,050,000",
+  delivered: "₦18,100,000",
+  pending: "₦5,950,000",
 };
 
 /* ------------------------------------------------------------------ */
-/*  Invoice-status badge                                               */
+/*  Procurement-status badge                                           */
 /* ------------------------------------------------------------------ */
 
 const statusStyles: Record<string, { bg: string; text: string }> = {
-  Paid: { bg: "bg-[#ddf6e2]", text: "text-[#34c759]" },
+  Delivered: { bg: "bg-[#ddf6e2]", text: "text-[#34c759]" },
   Pending: { bg: "bg-[#f2d5ff]", text: "text-[#8a38f5]" },
-  Overdue: { bg: "bg-[#ffe5e5]", text: "text-[#ff383c]" },
+  Cancelled: { bg: "bg-[#ffe5e5]", text: "text-[#ff383c]" },
 };
 
-function InvoiceStatusBadge({ status }: { status: string }) {
+function ProcurementStatusBadge({ status }: { status: string }) {
   const style = statusStyles[status] ?? {
     bg: "bg-[#f3f3f3]",
     text: "text-[#6f6d6d]",
@@ -171,20 +120,30 @@ function InvoiceStatusBadge({ status }: { status: string }) {
 /* ------------------------------------------------------------------ */
 
 const statusOptions = Array.from(
-  new Set(mockInvoicesData.map((r) => r.status)),
+  new Set(mockProcurementsData.map((r) => r.status)),
 ).map((s) => ({ label: s, value: s }));
 
 /* ------------------------------------------------------------------ */
 /*  Table config                                                       */
 /* ------------------------------------------------------------------ */
 
-const headers = ["Invoice Number", "Client", "Amount", "Due Date", "Status"];
+const headers = [
+  "Date",
+  "Vendor",
+  "Item",
+  "Quantity",
+  "Unit Price",
+  "Total Amount",
+  "Status",
+];
 
 const headerKeyMap: Record<string, string> = {
-  "Invoice Number": "invoiceNumber",
-  Client: "client",
-  Amount: "amount",
-  "Due Date": "dueDate",
+  Date: "date",
+  Vendor: "vendor",
+  Item: "item",
+  Quantity: "quantity",
+  "Unit Price": "unitPrice",
+  "Total Amount": "totalAmount",
   Status: "statusBadge",
 };
 
@@ -192,26 +151,24 @@ const headerKeyMap: Record<string, string> = {
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export default function Invoices() {
+export default function Procurements() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<(string | number)[]>([]);
-  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceRecord | null>(
-    null,
-  );
-  const [dialogOpen, setDialogOpen] = useState(false);
 
   const tableData = useMemo(() => {
-    let rows = mockInvoicesData;
+    let rows = mockProcurementsData;
 
     /* Search across visible text columns */
     if (search.trim()) {
       const q = search.toLowerCase();
       rows = rows.filter(
         (r) =>
-          r.invoiceNumber.toLowerCase().includes(q) ||
-          r.client.toLowerCase().includes(q) ||
-          r.amount.toLowerCase().includes(q) ||
-          r.dueDate.toLowerCase().includes(q) ||
+          r.date.toLowerCase().includes(q) ||
+          r.vendor.toLowerCase().includes(q) ||
+          r.item.toLowerCase().includes(q) ||
+          r.quantity.toLowerCase().includes(q) ||
+          r.unitPrice.toLowerCase().includes(q) ||
+          r.totalAmount.toLowerCase().includes(q) ||
           r.status.toLowerCase().includes(q),
       );
     }
@@ -223,14 +180,18 @@ export default function Invoices() {
 
     return rows.map((r) => ({
       ...r,
-      statusBadge: <InvoiceStatusBadge status={r.status} />,
+      statusBadge: <ProcurementStatusBadge status={r.status} />,
     }));
   }, [search, statusFilter]);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Download button */}
-      <div className="flex flex-col items-end">
+      {/* Action buttons */}
+      <div className="flex flex-col items-end gap-2 sm:flex-row">
+        <Button className="gap-1 rounded-lg bg-[#f3f3f3] px-2 py-1 font-montserrat text-sm font-bold text-[#0f0f0f] hover:bg-[#e0e0e0]">
+          <Plus size={18} />
+          Add Procurement
+        </Button>
         <Button className="gap-1 rounded-lg bg-[#8a38f5] px-2 py-1 font-montserrat text-sm font-bold text-[#f8f8f8] hover:bg-[#7828e0]">
           Download Report
           <Download size={18} />
@@ -244,8 +205,20 @@ export default function Invoices() {
           <span className="font-bold">{summaryStats.period}</span>
         </div>
         <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
-          <span className="font-normal">Total Expenses</span>
-          <span className="font-bold">{summaryStats.totalExpenses}</span>
+          <span className="font-normal">Total Procurements</span>
+          <span className="font-bold">{summaryStats.totalProcurements}</span>
+        </div>
+        <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
+          <span className="font-normal">Delivered</span>
+          <span className="font-bold text-[#34c759]">
+            {summaryStats.delivered}
+          </span>
+        </div>
+        <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
+          <span className="font-normal">Pending</span>
+          <span className="font-bold text-[#8a38f5]">
+            {summaryStats.pending}
+          </span>
         </div>
       </div>
 
@@ -271,29 +244,8 @@ export default function Invoices() {
           headers={headers}
           data={tableData}
           headerKeyMap={headerKeyMap}
-          onRowClick={(row) => {
-            setSelectedInvoice(row as unknown as InvoiceRecord);
-            setDialogOpen(true);
-          }}
         />
       </div>
-
-      {/* Invoice detail dialog */}
-      <InvoiceDetailDialog
-        invoice={
-          selectedInvoice
-            ? {
-                invoiceNumber: selectedInvoice.invoiceNumber,
-                client: selectedInvoice.client,
-                amount: selectedInvoice.amount,
-                dueDate: selectedInvoice.dueDate,
-                status: selectedInvoice.status,
-              }
-            : null
-        }
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-      />
     </div>
   );
 }

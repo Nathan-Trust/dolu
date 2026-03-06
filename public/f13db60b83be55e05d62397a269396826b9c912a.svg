@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 21.5 21.5" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Group">
+<g id="Vector">
+<path d="M10.75 5.75V12.75ZM10.75 12.75L13.75 9.75ZM10.75 12.75L7.75 9.75Z" fill="var(--fill-0, #F8F8F8)" style="fill:#F8F8F8;fill:color(display-p3 0.9718 0.9718 0.9718);fill-opacity:1;"/>
+<path d="M10.75 5.75V12.75M10.75 12.75L13.75 9.75M10.75 12.75L7.75 9.75" stroke="var(--stroke-0, #F8F8F8)" style="stroke:#F8F8F8;stroke:color(display-p3 0.9718 0.9718 0.9718);stroke-opacity:1;" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<path id="Vector_2" d="M14.75 15.75H6.75" stroke="var(--stroke-0, #F8F8F8)" style="stroke:#F8F8F8;stroke:color(display-p3 0.9718 0.9718 0.9718);stroke-opacity:1;" stroke-width="1.5" stroke-linecap="round"/>
+<path id="Vector_3" opacity="0.5" d="M0.75 10.75C0.75 6.036 0.75 3.679 2.214 2.214C3.68 0.75 6.036 0.75 10.75 0.75C15.464 0.75 17.821 0.75 19.285 2.214C20.75 3.68 20.75 6.036 20.75 10.75C20.75 15.464 20.75 17.821 19.285 19.285C17.822 20.75 15.464 20.75 10.75 20.75C6.036 20.75 3.679 20.75 2.214 19.285C0.75 17.822 0.75 15.464 0.75 10.75Z" stroke="var(--stroke-0, #F8F8F8)" style="stroke:#F8F8F8;stroke:color(display-p3 0.9718 0.9718 0.9718);stroke-opacity:1;" stroke-width="1.5"/>
+</g>
+</svg>

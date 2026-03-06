@@ -4,135 +4,86 @@ import { useState, useMemo } from "react";
 import CustomTable from "@/components/shared/CustomTable";
 import SearchInput from "@/components/shared/CustomSearchInput";
 import CustomMultiSelectFilter from "@/components/shared/CustomMultiSelectFilter";
-import { Download } from "lucide-react";
+import { Download, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ConfigureCommissionsDialog from "@/components/finance/ConfigureCommissionsDialog";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-interface SalesRecord {
+interface CommissionRecord {
+  [key: string]: React.ReactNode | string | number | null | object;
   id: number;
   date: string;
+  staffRealtor: string;
   client: string;
-  propertyEstate: string;
-  amount: string;
+  property: string;
+  saleAmount: string;
+  commission: string;
   status: string;
-  assignedTo: string;
+  role: string;
 }
 
 /* ------------------------------------------------------------------ */
 /*  Mock data                                                          */
 /* ------------------------------------------------------------------ */
 
-const mockSalesData: SalesRecord[] = [
+const mockCommissionsData: CommissionRecord[] = [
   {
     id: 1,
     date: "2 Jul, 2026",
+    staffRealtor: "John Doe",
     client: "Peter Abbey",
-    propertyEstate: "2 Bedroom Duplex/Joy Prime Hills",
-    amount: "₦15,000,000",
-    status: "Fully Paid",
-    assignedTo: "John Doe",
+    property: "2 Bedroom Duplex/Joy Prime Hills",
+    saleAmount: "₦15,000,000",
+    commission: "₦750,000",
+    status: "Paid",
+    role: "Staff",
   },
   {
     id: 2,
-    date: "2 Jul, 2026",
-    client: "Peter Abbey",
-    propertyEstate: "Joy Prime Hills",
-    amount: "₦15,000,000",
-    status: "Fully Paid",
-    assignedTo: "Jane Smith",
+    date: "5 Jul, 2026",
+    staffRealtor: "Jane Smith",
+    client: "Mary Johnson",
+    property: "3 Bedroom Flat/Lekki Heights",
+    saleAmount: "₦25,000,000",
+    commission: "₦1,250,000",
+    status: "Pending",
+    role: "Realtor",
   },
   {
     id: 3,
-    date: "2 Jul, 2026",
-    client: "Peter Abbey",
-    propertyEstate: "Joy Prime Hills",
-    amount: "₦15,000,000",
-    status: "Fully Paid",
-    assignedTo: "John Doe",
+    date: "8 Jul, 2026",
+    staffRealtor: "Mike Ross",
+    client: "David Brown",
+    property: "5 Bedroom Mansion/Victoria Island",
+    saleAmount: "₦85,000,000",
+    commission: "₦4,250,000",
+    status: "Paid",
+    role: "Realtor",
   },
   {
     id: 4,
-    date: "2 Jul, 2026",
-    client: "Peter Abbey",
-    propertyEstate: "Joy Prime Hills",
-    amount: "₦15,000,000",
-    status: "Fully Paid",
-    assignedTo: "Jane Smith",
+    date: "10 Jul, 2026",
+    staffRealtor: "Sarah Wilson",
+    client: "James Taylor",
+    property: "2 Bedroom Flat/Ikoyi Estate",
+    saleAmount: "₦18,000,000",
+    commission: "₦900,000",
+    status: "Pending",
+    role: "Staff",
   },
   {
     id: 5,
-    date: "2 Jul, 2026",
-    client: "Peter Abbey",
-    propertyEstate: "Joy Prime Hills",
-    amount: "₦15,000,000",
-    status: "Partly Paid",
-    assignedTo: "Mike Ross",
-  },
-  {
-    id: 6,
-    date: "2 Jul, 2026",
-    client: "Peter Abbey",
-    propertyEstate: "Joy Prime Hills",
-    amount: "₦15,000,000",
-    status: "Fully Paid",
-    assignedTo: "John Doe",
-  },
-  {
-    id: 7,
-    date: "2 Jul, 2026",
-    client: "Peter Abbey",
-    propertyEstate: "Joy Prime Hills",
-    amount: "₦15,000,000",
-    status: "Fully Paid",
-    assignedTo: "Jane Smith",
-  },
-  {
-    id: 8,
-    date: "2 Jul, 2026",
-    client: "Peter Abbey",
-    propertyEstate: "Joy Prime Hills",
-    amount: "₦15,000,000",
-    status: "Fully Paid",
-    assignedTo: "Mike Ross",
-  },
-  {
-    id: 9,
-    date: "2 Jul, 2026",
-    client: "Peter Abbey",
-    propertyEstate: "Joy Prime Hills",
-    amount: "₦15,000,000",
-    status: "Pending",
-    assignedTo: "John Doe",
-  },
-  {
-    id: 10,
-    date: "2 Jul, 2026",
-    client: "Peter Abbey",
-    propertyEstate: "Joy Prime Hills",
-    amount: "₦15,000,000",
-    status: "Fully Paid",
-    assignedTo: "Jane Smith",
-  },
-  {
-    id: 11,
-    date: "2 Jul, 2026",
-    client: "Peter Abbey",
-    propertyEstate: "Joy Prime Hills",
-    amount: "₦15,000,000",
-    status: "Fully Paid",
-    assignedTo: "John Doe",
-  },
-  {
-    id: 12,
-    date: "2 Jul, 2026",
-    client: "Peter Abbey",
-    propertyEstate: "Joy Prime Hills",
-    amount: "₦15,000,000",
-    status: "Fully Paid",
-    assignedTo: "Mike Ross",
+    date: "12 Jul, 2026",
+    staffRealtor: "John Doe",
+    client: "Lisa Anderson",
+    property: "4 Bedroom Duplex/Banana Island",
+    saleAmount: "₦120,000,000",
+    commission: "₦6,000,000",
+    status: "Paid",
+    role: "Staff",
   },
 ];
 
@@ -142,22 +93,21 @@ const mockSalesData: SalesRecord[] = [
 
 const summaryStats = {
   period: "1 Jan - 30 Jan",
-  totalSalesIncome: "₦160,325,078",
-  numberOfDeals: "143",
+  totalCommissions: "₦22,150,000",
+  paidCommissions: "₦15,950,000",
+  pendingCommissions: "₦6,200,000",
 };
 
 /* ------------------------------------------------------------------ */
-/*  Payment-status badge                                               */
+/*  Commission-status badge                                            */
 /* ------------------------------------------------------------------ */
 
 const statusStyles: Record<string, { bg: string; text: string }> = {
-  "Fully Paid": { bg: "bg-[#ddf6e2]", text: "text-[#34c759]" },
-  "Partly Paid": { bg: "bg-[#fff4cc]", text: "text-[#ac7f5e]" },
-  Pending: { bg: "bg-[#d9edff]", text: "text-[#0088ff]" },
-  Overdue: { bg: "bg-[#ffe5e5]", text: "text-[#ff383c]" },
+  Paid: { bg: "bg-[#ddf6e2]", text: "text-[#34c759]" },
+  Pending: { bg: "bg-[#f2d5ff]", text: "text-[#8a38f5]" },
 };
 
-function PaymentStatusBadge({ status }: { status: string }) {
+function CommissionStatusBadge({ status }: { status: string }) {
   const style = statusStyles[status] ?? {
     bg: "bg-[#f3f3f3]",
     text: "text-[#6f6d6d]",
@@ -172,28 +122,38 @@ function PaymentStatusBadge({ status }: { status: string }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Filter option helpers                                              */
+/*  Filter options                                                     */
 /* ------------------------------------------------------------------ */
 
-const assignedToOptions = Array.from(
-  new Set(mockSalesData.map((r) => r.assignedTo)),
-).map((name) => ({ label: name, value: name }));
+const roleOptions = Array.from(
+  new Set(mockCommissionsData.map((r) => r.role)),
+).map((role) => ({ label: role, value: role }));
 
 const statusOptions = Array.from(
-  new Set(mockSalesData.map((r) => r.status)),
+  new Set(mockCommissionsData.map((r) => r.status)),
 ).map((s) => ({ label: s, value: s }));
 
 /* ------------------------------------------------------------------ */
 /*  Table config                                                       */
 /* ------------------------------------------------------------------ */
 
-const headers = ["Date", "Client", "Property/Estate", "Amount", "Status"];
+const headers = [
+  "Date",
+  "Staff/Realtor",
+  "Client",
+  "Property",
+  "Sale Amount",
+  "Commission",
+  "Status",
+];
 
 const headerKeyMap: Record<string, string> = {
   Date: "date",
+  "Staff/Realtor": "staffRealtor",
   Client: "client",
-  "Property/Estate": "propertyEstate",
-  Amount: "amount",
+  Property: "property",
+  "Sale Amount": "saleAmount",
+  Commission: "commission",
   Status: "statusBadge",
 };
 
@@ -201,14 +161,14 @@ const headerKeyMap: Record<string, string> = {
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export default function SalesIncome() {
+export default function Commissions() {
   const [search, setSearch] = useState("");
-  const [assignedFilter, setAssignedFilter] = useState<(string | number)[]>([]);
+  const [roleFilter, setRoleFilter] = useState<(string | number)[]>([]);
   const [statusFilter, setStatusFilter] = useState<(string | number)[]>([]);
+  const [configureOpen, setConfigureOpen] = useState(false);
 
-  /* Filtered + badge-enhanced rows */
   const tableData = useMemo(() => {
-    let rows = mockSalesData;
+    let rows = mockCommissionsData;
 
     /* Search across visible text columns */
     if (search.trim()) {
@@ -216,16 +176,18 @@ export default function SalesIncome() {
       rows = rows.filter(
         (r) =>
           r.date.toLowerCase().includes(q) ||
+          r.staffRealtor.toLowerCase().includes(q) ||
           r.client.toLowerCase().includes(q) ||
-          r.propertyEstate.toLowerCase().includes(q) ||
-          r.amount.toLowerCase().includes(q) ||
+          r.property.toLowerCase().includes(q) ||
+          r.saleAmount.toLowerCase().includes(q) ||
+          r.commission.toLowerCase().includes(q) ||
           r.status.toLowerCase().includes(q),
       );
     }
 
-    /* Assigned-to filter */
-    if (assignedFilter.length > 0) {
-      rows = rows.filter((r) => assignedFilter.includes(r.assignedTo));
+    /* Role filter */
+    if (roleFilter.length > 0) {
+      rows = rows.filter((r) => roleFilter.includes(r.role));
     }
 
     /* Status filter */
@@ -235,18 +197,21 @@ export default function SalesIncome() {
 
     return rows.map((r) => ({
       ...r,
-      statusBadge: <PaymentStatusBadge status={r.status} />,
+      statusBadge: <CommissionStatusBadge status={r.status} />,
     }));
-  }, [search, assignedFilter, statusFilter]);
-
-  /* ---------------------------------------------------------------- */
-  /*  Render                                                           */
-  /* ---------------------------------------------------------------- */
+  }, [search, roleFilter, statusFilter]);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Section title + Download button */}
-      <div className="flex flex-col gap-4 items-end">
+      {/* Action buttons */}
+      <div className="flex flex-col items-end gap-2 sm:flex-row">
+        <Button
+          onClick={() => setConfigureOpen(true)}
+          className="gap-1 rounded-lg bg-[#f3f3f3] px-2 py-1 font-montserrat text-sm font-bold text-[#0f0f0f] hover:bg-[#e0e0e0]"
+        >
+          <Settings size={18} />
+          Configure Rates
+        </Button>
         <Button className="gap-1 rounded-lg bg-[#8a38f5] px-2 py-1 font-montserrat text-sm font-bold text-[#f8f8f8] hover:bg-[#7828e0]">
           Download Report
           <Download size={18} />
@@ -260,12 +225,20 @@ export default function SalesIncome() {
           <span className="font-bold">{summaryStats.period}</span>
         </div>
         <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
-          <span className="font-normal">Total Sales Income</span>
-          <span className="font-bold">{summaryStats.totalSalesIncome}</span>
+          <span className="font-normal">Total Commissions</span>
+          <span className="font-bold">{summaryStats.totalCommissions}</span>
         </div>
         <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
-          <span className="font-normal">Number of Deals</span>
-          <span className="font-bold">{summaryStats.numberOfDeals}</span>
+          <span className="font-normal">Paid</span>
+          <span className="font-bold text-[#34c759]">
+            {summaryStats.paidCommissions}
+          </span>
+        </div>
+        <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
+          <span className="font-normal">Pending</span>
+          <span className="font-bold text-[#8a38f5]">
+            {summaryStats.pendingCommissions}
+          </span>
         </div>
       </div>
 
@@ -281,10 +254,10 @@ export default function SalesIncome() {
           </div>
           <div className="flex items-center gap-4">
             <CustomMultiSelectFilter
-              title="Assigned to"
-              options={assignedToOptions}
-              selectedValues={assignedFilter}
-              onApplyFilter={setAssignedFilter}
+              title="Role"
+              options={roleOptions}
+              selectedValues={roleFilter}
+              onApplyFilter={setRoleFilter}
             />
             <CustomMultiSelectFilter
               title="Status"
@@ -301,6 +274,12 @@ export default function SalesIncome() {
           headerKeyMap={headerKeyMap}
         />
       </div>
+
+      {/* Configure commissions dialog */}
+      <ConfigureCommissionsDialog
+        open={configureOpen}
+        onOpenChange={setConfigureOpen}
+      />
     </div>
   );
 }

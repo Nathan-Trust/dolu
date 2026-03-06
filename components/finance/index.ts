@@ -3,3 +3,8 @@ export { default as SalesIncome } from "./SalesIncome";
 export { default as Expenses } from "./Expenses";
 export { default as Invoices } from "./Invoices";
 export { default as InvoiceDetailDialog } from "./InvoiceDetailDialog";
+export { default as Commissions } from "./Commissions";
+export { default as ConfigureCommissionsDialog } from "./ConfigureCommissionsDialog";
+export { default as Procurements } from "./Procurements";
+export { default as SalaryPayments } from "./SalaryPayments";
+export { default as AddStaffSalarySheet } from "./AddStaffSalarySheet";

@@ -13,6 +13,9 @@ export enum QueryKeys {
   Get_Permission_List = "Get_Permission_List",
   Get_Administrator_List = "Get_Administrator_List",
   Get_Overview = "Get_Overview",
+  Get_Commission_Rates = "Get_Commission_Rates",
+  Get_Salary_Payments = "Get_Salary_Payments",
+  Get_Procurements = "Get_Procurements",
 }
 
 export enum QueryErrCodes {
@@ -22,4 +25,5 @@ export enum QueryErrCodes {
   Properties = "Properties",
   Estates = "Estates",
   Overview = "Overview",
+  Finance = "Finance",
 }

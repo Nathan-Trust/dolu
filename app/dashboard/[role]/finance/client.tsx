@@ -5,6 +5,9 @@ import FinanceOverview from "@/components/finance/FinanceOverview";
 import SalesIncome from "@/components/finance/SalesIncome";
 import Expenses from "@/components/finance/Expenses";
 import Invoices from "@/components/finance/Invoices";
+import Commissions from "@/components/finance/Commissions";
+import Procurements from "@/components/finance/Procurements";
+import SalaryPayments from "@/components/finance/SalaryPayments";
 import { type UserRole } from "@/util/status";
 
 /* ------------------------------------------------------------------ */
@@ -13,12 +16,16 @@ import { type UserRole } from "@/util/status";
 /*  Admin     → All tabs                                               */
 /*  Staff     → Overview + Sales Income                                */
 /*  Realtor   → No access (redirected at page level)                   */
+/*  Manager   → Overview only                                          */
 /* ------------------------------------------------------------------ */
 
 const allSubTabs = [
   "Overview",
   "Sales Income",
+  "Commissions",
   "Expenses",
+  "Procurements",
+  "Salary Payments",
   "Invoices",
 ] as const;
 type FinanceSubTab = (typeof allSubTabs)[number];
@@ -75,7 +82,10 @@ export default function FinanceClient({ role }: FinanceClientProps) {
       {/* Tab content */}
       {activeTab === "Overview" && <FinanceOverview />}
       {activeTab === "Sales Income" && <SalesIncome />}
+      {activeTab === "Commissions" && <Commissions />}
       {activeTab === "Expenses" && <Expenses />}
+      {activeTab === "Procurements" && <Procurements />}
+      {activeTab === "Salary Payments" && <SalaryPayments />}
       {activeTab === "Invoices" && <Invoices />}
     </div>
   );

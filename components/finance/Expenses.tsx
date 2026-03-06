@@ -145,27 +145,30 @@ export default function Expenses() {
         </div>
       </div>
 
-      {/* Table */}
-      <CustomTable
-        headers={headers}
-        data={tableData}
-        headerKeyMap={headerKeyMap}
-        searchSlot={
-          <SearchInput
-            value={search}
-            onChange={setSearch}
-            placeholder="Search"
-          />
-        }
-        headerRight={
+      {/* Table with always-visible toolbar */}
+      <div className="w-full overflow-hidden rounded-lg bg-[#f8f8f8] p-4">
+        <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-4 md:gap-8">
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Search"
+            />
+          </div>
           <CustomMultiSelectFilter
             title="Category"
             options={categoryOptions}
             selectedValues={categoryFilter}
             onApplyFilter={setCategoryFilter}
           />
-        }
-      />
+        </div>
+
+        <CustomTable
+          headers={headers}
+          data={tableData}
+          headerKeyMap={headerKeyMap}
+        />
+      </div>
     </div>
   );
 }
