@@ -4,9 +4,7 @@ import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
-  LayoutDashboard,
   Users,
-  FileBarChart,
   UserCheck,
   Home,
   Wallet,
@@ -15,6 +13,7 @@ import {
   LogOut,
   ChevronRight,
 } from "lucide-react";
+import { Home2, ChartSquare } from "@solar-icons/react";
 import { RoleBadge } from "@/components/shared/RoleBadge";
 import { type UserRole } from "@/util/status";
 import { useStore } from "@/store/user-store";
@@ -34,12 +33,12 @@ interface MenuItem {
 
 const getMenuItems = (role: UserRole): MenuItem[] => [
   {
-    icon: LayoutDashboard,
+    icon: Home2,
     label: "Overview",
     href: `/dashboard/${role}/overview`,
   },
   { icon: Users, label: "People", href: `/dashboard/${role}/people` },
-  //   { icon: FileBarChart, label: "Reports", href: "/dashboard" },
+  { icon: ChartSquare, label: "Reports", href: `/dashboard/${role}/reports` },
   { icon: UserCheck, label: "Clients", href: `/dashboard/${role}/clients` },
   { icon: Home, label: "Properties", href: `/dashboard/${role}/properties` },
   // Finance is hidden for realtors
