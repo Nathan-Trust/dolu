@@ -4,16 +4,17 @@ import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
-  Users,
-  UserCheck,
-  Home,
-  Wallet,
-  Map,
-  Settings,
-  LogOut,
-  ChevronRight,
-} from "lucide-react";
-import { Home2, ChartSquare } from "@solar-icons/react";
+  ChartSquare,
+  UserId,
+  GraphUp,
+  UsersGroupTwoRounded,
+  HomeAddAngle,
+  MoneyBag,
+  Map as SolarMap,
+  SettingsMinimalistic,
+  Logout3,
+  AltArrowRight,
+} from "@solar-icons/react";
 import { RoleBadge } from "@/components/shared/RoleBadge";
 import { type UserRole } from "@/util/status";
 import { useStore } from "@/store/user-store";
@@ -33,19 +34,19 @@ interface MenuItem {
 
 const getMenuItems = (role: UserRole): MenuItem[] => [
   {
-    icon: Home2,
+    icon: ChartSquare,
     label: "Overview",
     href: `/dashboard/${role}/overview`,
   },
-  { icon: Users, label: "People", href: `/dashboard/${role}/people` },
-  { icon: ChartSquare, label: "Reports", href: `/dashboard/${role}/reports` },
-  { icon: UserCheck, label: "Clients", href: `/dashboard/${role}/clients` },
-  { icon: Home, label: "Properties", href: `/dashboard/${role}/properties` },
+  { icon: UserId, label: "People", href: `/dashboard/${role}/people` },
+  { icon: GraphUp, label: "Reports", href: `/dashboard/${role}/reports` },
+  { icon: UsersGroupTwoRounded, label: "Clients", href: `/dashboard/${role}/clients` },
+  { icon: HomeAddAngle, label: "Properties", href: `/dashboard/${role}/properties` },
   // Finance is hidden for realtors
   ...(role !== "realtor"
     ? [
         {
-          icon: Wallet,
+          icon: MoneyBag,
           label: "Finance",
           subItems: [
             { label: "Overview", href: `/dashboard/${role}/finance` },
@@ -81,8 +82,8 @@ const getMenuItems = (role: UserRole): MenuItem[] => [
         },
       ]
     : []),
-  { icon: Map, label: "Map", href: `/dashboard/${role}/map` },
-  { icon: Settings, label: "Settings", href: `/dashboard/${role}/settings` },
+  { icon: SolarMap, label: "Map", href: `/dashboard/${role}/map` },
+  { icon: SettingsMinimalistic, label: "Settings", href: `/dashboard/${role}/settings` },
 ];
 
 export default function Sidebar({ role, onNavigate }: SidebarProps) {
@@ -161,6 +162,7 @@ export default function Sidebar({ role, onNavigate }: SidebarProps) {
                 >
                   <div className="flex items-center gap-1">
                     <item.icon
+                      weight="BoldDuotone"
                       className={`size-6 ${isActive ? "text-[#8a38f5]" : "text-[#f3f3f3]"}`}
                     />
                     <span
@@ -174,14 +176,16 @@ export default function Sidebar({ role, onNavigate }: SidebarProps) {
                     </span>
                   </div>
                   {item.subItems && (
-                    <ChevronRight
+                    <AltArrowRight
+                      weight="BoldDuotone"
                       className={`size-6 transition-transform ${
                         isActive ? "text-[#8a38f5]" : "text-[#f3f3f3]"
                       } ${isExpanded ? "rotate-90" : ""}`}
                     />
                   )}
                   {!item.subItems && (
-                    <ChevronRight
+                    <AltArrowRight
+                      weight="BoldDuotone"
                       className={`size-6 ${isActive ? "text-[#8a38f5]" : "text-[#f3f3f3]"}`}
                     />
                   )}
@@ -250,11 +254,11 @@ export default function Sidebar({ role, onNavigate }: SidebarProps) {
             onClick={() => router.push("/sign-in")}
             className="flex items-center gap-1 rounded-l p-1 hover:bg-white/5"
           >
-            <LogOut className="size-6 text-[#f3f3f3]" />
+            <Logout3 weight="BoldDuotone" className="size-6 text-[#f3f3f3]" />
             <span className="font-montserrat text-base font-normal text-[#f3f3f3]">
               Log Out
             </span>
-            <ChevronRight className="ml-auto size-6 text-[#f3f3f3]" />
+            <AltArrowRight weight="BoldDuotone" className="ml-auto size-6 text-[#f3f3f3]" />
           </button>
         </div>
       </div>
