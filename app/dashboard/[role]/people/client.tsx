@@ -17,6 +17,8 @@ const peopleByRole: Record<
   staff: PeopleListView,
   realtor: PeopleOwnProfile,
   manager: PeopleListView,
+  procurement: PeopleListView,
+  finance: PeopleListView,
 };
 
 export default function PeopleClient({ role }: PeopleClientProps) {
