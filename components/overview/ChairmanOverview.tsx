@@ -13,7 +13,15 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { Ticket, UserCheck, Heart, Building2, Search } from "lucide-react";
+import {
+  Ticket,
+  UserCheck,
+  Heart,
+  Building2,
+  Search,
+  ShoppingCart,
+  Key,
+} from "lucide-react";
 import CustomTable from "@/components/shared/CustomTable";
 import { type UserRole } from "@/util/status";
 import type { OverviewData } from "@/services/overview";
@@ -107,6 +115,20 @@ export default function ChairmanOverview({
       icon: Heart,
     },
     {
+      label: "Total Expenses",
+      value: isLoading
+        ? "Loading..."
+        : `₦${overviewData?.total_expenses?.toLocaleString() || "0"}`,
+      icon: ShoppingCart,
+    },
+    {
+      label: "Total Sold Properties",
+      value: isLoading
+        ? "Loading..."
+        : String(overviewData?.total_sold_properties || "0"),
+      icon: Key,
+    },
+    {
       label: "Available Properties",
       value: isLoading
         ? "Loading..."
@@ -116,20 +138,26 @@ export default function ChairmanOverview({
   ];
 
   // Transform sales_trend from API into chart format
+  const months = [
+    "JAN",
+    "FEB",
+    "MAR",
+    "APR",
+    "MAY",
+    "JUN",
+    "JUL",
+    "AUG",
+    "SEP",
+    "OCT",
+    "NOV",
+    "DEC",
+  ];
   const salesTrendData = overviewData?.sales_trend
-    ? overviewData.sales_trend.map((value, index) => {
-        const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-        return { month: days[index] || `Day ${index + 1}`, revenue: value };
-      })
-    : [
-        { month: "Mon", revenue: 0 },
-        { month: "Tue", revenue: 0 },
-        { month: "Wed", revenue: 0 },
-        { month: "Thu", revenue: 0 },
-        { month: "Fri", revenue: 0 },
-        { month: "Sat", revenue: 0 },
-        { month: "Sun", revenue: 0 },
-      ];
+    ? overviewData.sales_trend.map((value, index) => ({
+        month: months[index] || `M${index + 1}`,
+        revenue: value,
+      }))
+    : months.map((m) => ({ month: m, revenue: 0 }));
 
   // Build report table data
   const reportsData: ReportRow[] = reportTitles.map((title, i) => {
@@ -165,7 +193,7 @@ export default function ChairmanOverview({
     <div className="flex flex-col gap-8">
       <OverviewHeader role={role} />
 
-      <MetricCards cards={metricCards} />
+      <MetricCards cards={metricCards} columns={3} />
 
       {/* ─── Charts Row ──────────────────────── */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[1.5fr_1fr]">

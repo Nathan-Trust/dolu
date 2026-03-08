@@ -1,7 +1,15 @@
 "use client";
 
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { Tag, TicketCheck, FileText, Search, UserPlus } from "lucide-react";
+import {
+  Tag,
+  TicketCheck,
+  FileText,
+  Search,
+  UserPlus,
+  Users,
+  HandCoins,
+} from "lucide-react";
 import CustomTable from "@/components/shared/CustomTable";
 import { type UserRole } from "@/util/status";
 import type { OverviewData } from "@/services/overview";
@@ -175,6 +183,48 @@ export default function RealtorOverview({
             </p>
           </div>
           <FileText className="size-6 text-[#8a38f5]" />
+        </div>
+      </div>
+
+      {/* Second row of metric cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-8">
+        {/* My Clients */}
+        <div className="flex items-center justify-between rounded-lg bg-[#f8f8f8] p-4">
+          <div className="flex flex-col gap-2">
+            <p className="font-montserrat text-base font-normal text-[#6f6d6d]">
+              My Clients
+            </p>
+            <p className="font-montserrat text-lg font-bold text-[#0f0f0f]">
+              14
+            </p>
+          </div>
+          <Users className="size-6 text-[#8a38f5]" />
+        </div>
+
+        {/* Pending Commissions */}
+        <div className="flex items-center justify-between rounded-lg bg-[#f8f8f8] p-4">
+          <div className="flex flex-col gap-1">
+            <p className="font-montserrat text-base font-normal text-[#6f6d6d]">
+              Pending Commissions
+            </p>
+            <p className="font-montserrat text-lg font-bold text-[#0f0f0f]">
+              ₦10,325,000
+            </p>
+          </div>
+          <HandCoins className="size-6 text-[#8a38f5]" />
+        </div>
+
+        {/* My Commissions Earned */}
+        <div className="flex items-center justify-between rounded-lg bg-[#f8f8f8] p-4">
+          <div className="flex flex-col gap-1">
+            <p className="font-montserrat text-base font-normal text-[#6f6d6d]">
+              My Commissions Earned
+            </p>
+            <p className="font-montserrat text-lg font-bold text-[#0f0f0f]">
+              ₦10,325,000
+            </p>
+          </div>
+          <HandCoins className="size-6 text-[#8a38f5]" />
         </div>
       </div>
 

@@ -8,3 +8,4 @@ export { OverviewHeader } from "./OverviewHeader";
 export { formatYAxisTick } from "./formatters";
 export { default as StaffOverview } from "./StaffOverview";
 export { default as RealtorOverview } from "./RealtorOverview";
+export { default as FinanceOverview } from "./FinanceOverview";

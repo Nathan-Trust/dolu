@@ -22,6 +22,9 @@ import {
   FileText,
   ShieldAlert,
   UserPlus,
+  Clock,
+  Users,
+  Building2,
 } from "lucide-react";
 import CustomTable from "@/components/shared/CustomTable";
 import { type UserRole } from "@/util/status";
@@ -199,6 +202,43 @@ export default function StaffOverview({
         </div>
       </div>
 
+      {/* Second row of metric cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
+        <div className="flex items-center justify-between rounded-lg bg-[#f8f8f8] p-4">
+          <div className="flex flex-col gap-2">
+            <p className="font-montserrat text-base font-normal text-[#6f6d6d]">
+              Deals in Progress
+            </p>
+            <p className="font-montserrat text-lg font-bold text-[#0f0f0f]">
+              3
+            </p>
+          </div>
+          <Clock className="size-6 text-[#8a38f5]" />
+        </div>
+        <div className="flex items-center justify-between rounded-lg bg-[#f8f8f8] p-4">
+          <div className="flex flex-col gap-2">
+            <p className="font-montserrat text-base font-normal text-[#6f6d6d]">
+              My Clients
+            </p>
+            <p className="font-montserrat text-lg font-bold text-[#0f0f0f]">
+              14
+            </p>
+          </div>
+          <Users className="size-6 text-[#8a38f5]" />
+        </div>
+        <div className="flex items-center justify-between rounded-lg bg-[#f8f8f8] p-4">
+          <div className="flex flex-col gap-2">
+            <p className="font-montserrat text-base font-normal text-[#6f6d6d]">
+              Properties Assigned
+            </p>
+            <p className="font-montserrat text-lg font-bold text-[#0f0f0f]">
+              45
+            </p>
+          </div>
+          <Building2 className="size-6 text-[#8a38f5]" />
+        </div>
+      </div>
+
       {/* View Missed Reports */}
       <div className="flex items-center justify-end">
         <button className="flex items-center gap-2 rounded border border-[#c8c8c8] bg-[#f8f8f8] px-2 py-2 font-montserrat text-sm font-normal text-[#6f6d6d] transition-colors hover:bg-[#f3f3f3]">
@@ -212,7 +252,7 @@ export default function StaffOverview({
         <div className="flex flex-1 flex-col gap-4">
           <div className="flex flex-wrap items-center gap-4 md:gap-8">
             <div className="flex items-end gap-4">
-              <p className="font-montserrat text-base font-bold text-[#6f6d6d]">
+              <p className="font-montserrat text-base font-bold text-[#0f0f0f]">
                 Weekly Report
               </p>
               <span className="rounded-lg bg-[#f6e9dd] px-1 py-0.5 font-montserrat text-[9px] font-semibold text-[#ff8d28]">

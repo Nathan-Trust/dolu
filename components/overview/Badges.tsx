@@ -3,10 +3,17 @@ import { Badge } from "@/components/ui/badge";
 export function StatusBadge({ label }: { label: string }) {
   const styleMap: Record<string, { bg: string; text: string }> = {
     "Pending Review": { bg: "#f6e9dd", text: "#ff8d28" },
+    Pending: { bg: "#f6e9dd", text: "#ff8d28" },
     Approved: { bg: "#ddf6e2", text: "#34c759" },
+    Verified: { bg: "#d7fdd7", text: "#34c759" },
+    Paid: { bg: "#d7fdd7", text: "#34c759" },
     Rejected: { bg: "#f6dddd", text: "#ff383c" },
+    Missing: { bg: "#f6dddd", text: "#ff383c" },
+    Overdue: { bg: "#f6dddd", text: "#ff383c" },
+    Submitted: { bg: "#ddf6e2", text: "#34c759" },
+    Missed: { bg: "#f6dddd", text: "#ff383c" },
   };
-  const style = styleMap[label] || styleMap["Pending Review"];
+  const style = styleMap[label] || styleMap["Pending"];
   return (
     <Badge
       className="rounded-lg border-0 px-1 py-0.5 font-montserrat text-[9px] font-semibold"

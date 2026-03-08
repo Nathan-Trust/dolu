@@ -339,6 +339,8 @@ const avatarColors: Record<UserRole, string> = {
   staff: "#34c759",
   realtor: "#8a38f5",
   manager: "#ff6b35",
+  procurement: "#e91e63",
+  finance: "#009688",
 };
 
 /* ------------------------------------------------------------------ */
@@ -351,6 +353,8 @@ const categoryOptions = [
   { label: "Staff", value: "staff" },
   { label: "Realtor", value: "realtor" },
   { label: "Manager", value: "manager" },
+  { label: "Procurement", value: "procurement" },
+  { label: "Finance", value: "finance" },
 ];
 
 /* ------------------------------------------------------------------ */

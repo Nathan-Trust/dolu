@@ -6,3 +6,5 @@ export {
   ClientDetailDialogWrapper,
 } from "./ClientDetailDialog";
 export { default as AddClientSheet } from "./AddClientSheet";
+export { default as AddClientOptionDialog } from "./AddClientOptionDialog";
+export { default as SendSubscriptionSheet } from "./SendSubscriptionSheet";

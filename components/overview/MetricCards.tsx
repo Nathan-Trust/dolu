@@ -8,13 +8,18 @@ interface MetricCardData {
 
 interface MetricCardsProps {
   cards: MetricCardData[];
+  columns?: 3 | 4;
 }
 
 export type { MetricCardData };
 
-export function MetricCards({ cards }: MetricCardsProps) {
+export function MetricCards({ cards, columns = 4 }: MetricCardsProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 md:gap-6">
+    <div
+      className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${
+        columns === 3 ? "md:grid-cols-3" : "md:grid-cols-4"
+      } md:gap-6`}
+    >
       {cards.map((card) => (
         <div
           key={card.label}

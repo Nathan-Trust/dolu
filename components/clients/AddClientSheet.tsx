@@ -1,6 +1,7 @@
 "use client";
 
-import { useForm, useWatch, Controller } from "react-hook-form";
+import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Calendar } from "lucide-react";
@@ -12,7 +13,7 @@ import { useInvalidateQueries } from "@/hooks/use-invalidate-query";
 import CustomSheet from "@/components/shared/CustomSheetDrawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -20,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import {
   Field,
   FieldError,
@@ -29,48 +29,157 @@ import {
 } from "@/components/ui/field";
 
 /* ------------------------------------------------------------------ */
-/*  Mock options                                                       */
+/*  Select options                                                     */
 /* ------------------------------------------------------------------ */
 
-const staffOptions = [
-  {
-    name: "John Ibekwe",
-    initials: "JI",
-    avatarColor: "#8a38f5",
-    role: "Staff" as const,
-  },
-  {
-    name: "James Agahowa",
-    initials: "JA",
-    avatarColor: "#38a5f5",
-    role: "Staff" as const,
-  },
-  {
-    name: "David Okoro",
-    initials: "DO",
-    avatarColor: "#f53838",
-    role: "Realtor" as const,
-  },
+const titleOptions = ["Mr", "Mrs", "Miss", "Dr", "Chief", "Alhaji", "Alhaja"];
+const nationalityOptions = ["Nigerian", "Ghanaian", "Other"];
+const maritalStatusOptions = ["Single", "Married", "Divorced", "Widowed"];
+const meansOfIdOptions = [
+  "NIN Slip",
+  "International Passport",
+  "Voter's Card",
+  "Driver's License",
 ];
 
-const propertyOptions = [
-  "2 Plots of land situate at Ajah, Lagos.",
-  "3 Bedroom flat at Victoria Island, Lagos.",
-  "4 Bedroom duplex at Lekki Phase 1, Lagos.",
-  "1 Plot of land at Ibeju-Lekki, Lagos.",
+const purposeOptions = [
+  "Residential",
+  "Commercial",
+  "Buy and Build",
+  "Land Banking",
+];
+const instalmentOptions = ["(0-1 month)", "0-3 Months", "0-6 Months", "Other"];
+const howHeardOptions = [
+  "Social Media",
+  "Radio",
+  "Business Representative",
+  "Other",
+];
+const bankOptions = [
+  "Zenith Bank",
+  "First Bank",
+  "GTBank",
+  "Access Bank",
+  "UBA",
+  "Wema Bank",
 ];
 
-const propertyTypeOptions = ["Land", "Flat", "House", "Commercial"];
+/* ------------------------------------------------------------------ */
+/*  Sub-components                                                     */
+/* ------------------------------------------------------------------ */
 
-const salesStageOptions = [
-  "Lead",
-  "Contacted",
-  "Interested",
-  "Inspection",
-  "Negotiation",
-  "Payment",
-  "Closed",
-];
+function SectionNumber({ number, label }: { number: string; label: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="font-montserrat text-base font-bold text-[#0f0f0f]">
+        {number}
+      </span>
+      <span className="font-montserrat text-base font-bold text-[#0f0f0f]">
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function SubSectionLabel({ label }: { label: string }) {
+  return (
+    <p className="font-montserrat text-base font-bold text-[#0f0f0f]">
+      {label}
+    </p>
+  );
+}
+
+function FileUploadArea({ label }: { label: string }) {
+  return (
+    <Field>
+      <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+        {label}
+      </FieldLabel>
+      <div className="flex flex-col items-center gap-2 rounded-lg bg-[#f3f3f3] px-4 py-6">
+        <div className="flex flex-col items-center gap-1">
+          <div className="size-[72px] rounded-lg bg-[#e8e8e8]" />
+          <p className="font-montserrat text-sm text-[#6f6d6d]">
+            Choose a file or drag &amp; drop it here
+          </p>
+        </div>
+        <button
+          type="button"
+          className="rounded border border-[#c8c8c8] px-2 py-0.5 font-montserrat text-[11px] text-[#6f6d6d]"
+        >
+          Browse Files
+        </button>
+        <div className="flex flex-col items-center gap-0.5">
+          <p className="font-montserrat text-[11px] text-[#6f6d6d]">
+            Supported file types: PNG, JPG, JPEG, SVG
+          </p>
+          <p className="font-montserrat text-[11px] text-[#6f6d6d]">
+            2MB Maximum
+          </p>
+        </div>
+      </div>
+    </Field>
+  );
+}
+
+function AddressFields({
+  prefix,
+  register,
+}: {
+  prefix: string;
+  register: ReturnType<typeof useForm<AddClientFormValues>>["register"];
+}) {
+  return (
+    <div className="flex gap-2">
+      <Input
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        {...register(`${prefix}.street` as any)}
+        placeholder="House number and Street"
+        className="h-14 flex-1 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+      />
+      <Input
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        {...register(`${prefix}.city` as any)}
+        placeholder="City"
+        className="h-14 flex-1 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+      />
+      <Input
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        {...register(`${prefix}.state` as any)}
+        placeholder="State"
+        className="h-14 flex-1 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+      />
+    </div>
+  );
+}
+
+function PhoneField({
+  registerField,
+  error,
+}: {
+  registerField: ReturnType<
+    ReturnType<typeof useForm<AddClientFormValues>>["register"]
+  >;
+  error?: string;
+}) {
+  return (
+    <Field>
+      <div className="flex gap-2">
+        <div className="flex w-27.25 items-center rounded-lg bg-[#f3f3f3] p-4">
+          <span className="font-montserrat text-sm font-bold text-[#6f6d6d]">
+            +234
+          </span>
+        </div>
+        <Input
+          type="tel"
+          placeholder="0802 123 1234"
+          className="h-12 flex-1 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+          {...registerField}
+        />
+      </div>
+      {error && <FieldError>{error}</FieldError>}
+    </Field>
+  );
+}
 
 /* ------------------------------------------------------------------ */
 /*  Main component                                                     */
@@ -87,36 +196,59 @@ export default function AddClientSheet({
   onOpenChange,
   onSuccess,
 }: AddClientSheetProps) {
+  const [step, setStep] = useState<1 | 2>(1);
+
   const {
     register,
     handleSubmit,
     control,
     reset,
-    formState: { errors, isSubmitting },
+    trigger,
+    formState: { errors },
   } = useForm<AddClientFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(addClientSchema as any),
     defaultValues: {
-      clientName: "",
+      title: "",
+      surname: "",
+      firstName: "",
+      otherName: "",
+      nationality: "",
+      maritalStatus: "",
       email: "",
-      phone: "",
-      assignedTo: "",
-      interestedProperty: "",
-      propertyType: "",
-      dealValue: "",
-      salesStage: "",
-      followUpDate: "",
-      notes: "",
+      dateOfBirth: "",
+      permanentAddress: { street: "", city: "", state: "" },
+      residentialAddress: { street: "", city: "", state: "" },
+      homePhone: "",
+      mobilePhone: "",
+      nextOfKin: {
+        fullName: "",
+        relationship: "",
+        address: { street: "", city: "", state: "" },
+        phone: "",
+      },
+      employer: {
+        name: "",
+        jobRole: "",
+        address: { street: "", city: "", state: "" },
+        phone: "",
+      },
+      meansOfId: "",
+      purposeOfPurchase: [],
+      numberOfPlots: "",
+      amountOfProperty: "",
+      outright: "",
+      instalments: "",
+      nameOnDocuments: "",
+      howDidYouHear: "",
+      bankName: "",
+      accountName: "",
+      accountNumber: "",
     },
   });
 
-  const assignedToValue = useWatch({ control, name: "assignedTo" });
-  const selectedStaff = staffOptions.find((s) => s.name === assignedToValue);
-
-  /* Query invalidation */
   const { invalidateQuery } = useInvalidateQueries();
 
-  /* Mutation */
   const addClientMutation = useMutation({
     mutationFn: (data: AddClientFormValues) => ClientService.createClient(data),
     onSuccess: () => {
@@ -124,16 +256,30 @@ export default function AddClientSheet({
     },
   });
 
-  /* Submit */
   const onSubmit = (data: AddClientFormValues) => {
     addClientMutation.mutate(data, {
-      onSuccess: (res) => {
+      onSuccess: () => {
+        const name = `${data.surname} ${data.firstName}`.trim() || "Client";
         const code = crypto.randomUUID().slice(0, 5);
-        onSuccess?.({ name: data.clientName || "Client", code });
+        onSuccess?.({ name, code });
         reset();
+        setStep(1);
         onOpenChange(false);
       },
     });
+  };
+
+  const handleNext = async () => {
+    const valid = await trigger([
+      "title",
+      "surname",
+      "firstName",
+      "nationality",
+      "maritalStatus",
+      "email",
+      "mobilePhone",
+    ]);
+    if (valid) setStep(2);
   };
 
   return (
@@ -147,253 +293,619 @@ export default function AddClientSheet({
     >
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-4 pb-8 pt-4"
+        className="flex flex-col gap-6 pb-8 pt-4"
       >
-        <FieldGroup>
-          {/* ── Client Name ── */}
-          <Field>
-            <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
-              Client Name
-            </FieldLabel>
-            <Input
-              placeholder="Peter Abbey"
-              className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
-              {...register("clientName")}
-              aria-invalid={!!errors.clientName}
-            />
-            {errors.clientName && (
-              <FieldError>{errors.clientName.message}</FieldError>
-            )}
-          </Field>
+        {step === 1 && (
+          <>
+            {/* ── Section 1: Bio-data ── */}
+            <SectionNumber number="1" label="Bio-data" />
 
-          {/* ── Email Address ── */}
-          <Field>
-            <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
-              Email Address
-            </FieldLabel>
-            <Input
-              type="email"
-              placeholder="peterabbey@email.com"
-              className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
-              {...register("email")}
-              aria-invalid={!!errors.email}
-            />
-            {errors.email && <FieldError>{errors.email.message}</FieldError>}
-          </Field>
+            {/* ── Personal ── */}
+            <SubSectionLabel label="Personal" />
 
-          {/* ── Phone Number ── */}
-          <Field>
-            <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
-              Phone Number
-            </FieldLabel>
-            <div className="flex gap-2">
-              <div className="flex w-27.25 items-center rounded-lg bg-[#f3f3f3] p-4">
-                <span className="font-montserrat text-sm font-bold text-[#6f6d6d]">
-                  +234
-                </span>
+            <FieldGroup>
+              {/* Passport Photograph */}
+              <FileUploadArea label="Upload Passport Photograph" />
+
+              {/* Title */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Title
+                </FieldLabel>
+                <Controller
+                  name="title"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="h-14 w-full rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm text-[#0f0f0f] shadow-none focus:ring-0">
+                        <SelectValue placeholder="Select title" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {titleOptions.map((t) => (
+                          <SelectItem key={t} value={t}>
+                            {t}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.title && (
+                  <FieldError>{errors.title.message}</FieldError>
+                )}
+              </Field>
+
+              {/* Surname */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Surname
+                </FieldLabel>
+                <Input
+                  placeholder="Peter"
+                  className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+                  {...register("surname")}
+                  aria-invalid={!!errors.surname}
+                />
+                {errors.surname && (
+                  <FieldError>{errors.surname.message}</FieldError>
+                )}
+              </Field>
+
+              {/* First Name */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  First Name
+                </FieldLabel>
+                <Input
+                  placeholder="Peter"
+                  className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+                  {...register("firstName")}
+                  aria-invalid={!!errors.firstName}
+                />
+                {errors.firstName && (
+                  <FieldError>{errors.firstName.message}</FieldError>
+                )}
+              </Field>
+
+              {/* Other Name */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Other Name
+                </FieldLabel>
+                <Input
+                  placeholder="Peter"
+                  className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+                  {...register("otherName")}
+                />
+              </Field>
+
+              {/* Nationality */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Nationality
+                </FieldLabel>
+                <Controller
+                  name="nationality"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="h-14 w-full rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm text-[#0f0f0f] shadow-none focus:ring-0">
+                        <SelectValue placeholder="Select nationality" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {nationalityOptions.map((n) => (
+                          <SelectItem key={n} value={n}>
+                            {n}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.nationality && (
+                  <FieldError>{errors.nationality.message}</FieldError>
+                )}
+              </Field>
+
+              {/* Marital Status */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Marital Status
+                </FieldLabel>
+                <Controller
+                  name="maritalStatus"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="h-14 w-full rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm text-[#0f0f0f] shadow-none focus:ring-0">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {maritalStatusOptions.map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.maritalStatus && (
+                  <FieldError>{errors.maritalStatus.message}</FieldError>
+                )}
+              </Field>
+
+              {/* Email Address */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Email Address
+                </FieldLabel>
+                <Input
+                  type="email"
+                  placeholder="peterabbey@email.com"
+                  className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+                  {...register("email")}
+                  aria-invalid={!!errors.email}
+                />
+                {errors.email && (
+                  <FieldError>{errors.email.message}</FieldError>
+                )}
+              </Field>
+
+              {/* Date of Birth */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Date of Birth
+                </FieldLabel>
+                <div className="flex items-center justify-between rounded-lg bg-[#f3f3f3] px-4">
+                  <Input
+                    placeholder="dd/mm/yy"
+                    className="h-14 border-0 bg-transparent px-0 font-montserrat text-sm text-[#0f0f0f] shadow-none placeholder:text-[#6f6d6d] focus-visible:ring-0"
+                    {...register("dateOfBirth")}
+                  />
+                  <Calendar className="size-6 text-[#6f6d6d]" />
+                </div>
+              </Field>
+
+              {/* Permanent Address */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Permanent Address
+                </FieldLabel>
+                <AddressFields prefix="permanentAddress" register={register} />
+              </Field>
+
+              {/* Residential Address */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Residential Address
+                </FieldLabel>
+                <AddressFields
+                  prefix="residentialAddress"
+                  register={register}
+                />
+              </Field>
+
+              {/* Home Phone Number */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Home Phone Number
+                </FieldLabel>
+                <PhoneField registerField={register("homePhone")} />
+              </Field>
+
+              {/* Mobile Phone Number */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Mobile Phone Number
+                </FieldLabel>
+                <PhoneField
+                  registerField={register("mobilePhone")}
+                  error={errors.mobilePhone?.message}
+                />
+              </Field>
+            </FieldGroup>
+
+            {/* ── Next of Kin ── */}
+            <SubSectionLabel label="Next of Kin" />
+
+            <FieldGroup>
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Full Name
+                </FieldLabel>
+                <Input
+                  placeholder="Peter"
+                  className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+                  {...register("nextOfKin.fullName")}
+                />
+              </Field>
+
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Relationship
+                </FieldLabel>
+                <Input
+                  placeholder="Brother"
+                  className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+                  {...register("nextOfKin.relationship")}
+                />
+              </Field>
+
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Address
+                </FieldLabel>
+                <AddressFields prefix="nextOfKin.address" register={register} />
+              </Field>
+
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Phone number
+                </FieldLabel>
+                <PhoneField registerField={register("nextOfKin.phone")} />
+              </Field>
+            </FieldGroup>
+
+            {/* ── Current Employer ── */}
+            <SubSectionLabel label="Current Employer" />
+
+            <FieldGroup>
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Name
+                </FieldLabel>
+                <Input
+                  placeholder="Company Name"
+                  className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+                  {...register("employer.name")}
+                />
+              </Field>
+
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Job Role
+                </FieldLabel>
+                <Input
+                  placeholder="Banker"
+                  className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+                  {...register("employer.jobRole")}
+                />
+              </Field>
+
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Address
+                </FieldLabel>
+                <AddressFields prefix="employer.address" register={register} />
+              </Field>
+
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Phone number
+                </FieldLabel>
+                <PhoneField registerField={register("employer.phone")} />
+              </Field>
+            </FieldGroup>
+
+            {/* ── Identification ── */}
+            <SubSectionLabel label="Identification" />
+
+            <FieldGroup>
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Means of Identification
+                </FieldLabel>
+                <Controller
+                  name="meansOfId"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value ?? ""}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger className="h-14 w-full rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm text-[#0f0f0f] shadow-none focus:ring-0">
+                        <SelectValue placeholder="Select ID type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {meansOfIdOptions.map((id) => (
+                          <SelectItem key={id} value={id}>
+                            {id}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </Field>
+
+              {/* Upload Identity Card */}
+              <FileUploadArea label="Upload Identity Card" />
+            </FieldGroup>
+
+            {/* ── Step 1 Actions ── */}
+            <div className="flex items-center justify-between">
+              <Button
+                type="button"
+                onClick={() => {
+                  reset();
+                  setStep(1);
+                  onOpenChange(false);
+                }}
+                className="w-31 rounded-lg bg-[#0f0f0f] font-montserrat text-sm font-bold text-[#f8f8f8] hover:bg-[#0f0f0f]/90"
+              >
+                Main
+              </Button>
+              <Button
+                type="button"
+                onClick={handleNext}
+                className="w-31 rounded-lg bg-[#8a38f5] px-1 py-2 font-montserrat text-sm font-bold text-[#f8f8f8] hover:bg-[#8a38f5]/90"
+              >
+                Next
+              </Button>
+            </div>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            {/* ── Section 2: Purchase Details ── */}
+            <SectionNumber number="2" label="Purchase Details" />
+
+            <FieldGroup>
+              {/* Purpose of Purchase */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-bold text-[#0f0f0f]">
+                  Purpose of Purchase (Please tick appropriately)
+                </FieldLabel>
+                <Controller
+                  name="purposeOfPurchase"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex flex-wrap gap-4">
+                      {purposeOptions.map((opt) => {
+                        const checked = (field.value ?? []).includes(opt);
+                        return (
+                          <label
+                            key={opt}
+                            className="flex cursor-pointer items-center gap-2"
+                          >
+                            <Checkbox
+                              checked={checked}
+                              onCheckedChange={(c) => {
+                                const current = field.value ?? [];
+                                field.onChange(
+                                  c
+                                    ? [...current, opt]
+                                    : current.filter((v: string) => v !== opt),
+                                );
+                              }}
+                              className="size-5 rounded border-[#c8c8c8] data-[state=checked]:border-[#8a38f5] data-[state=checked]:bg-[#8a38f5]"
+                            />
+                            <span className="font-montserrat text-sm text-[#0f0f0f]">
+                              {opt}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                />
+              </Field>
+
+              {/* Number of Plots + Amount of Property */}
+              <div className="flex gap-4">
+                <Field className="flex-1">
+                  <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                    Number of Plots
+                  </FieldLabel>
+                  <Input
+                    placeholder="4"
+                    className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+                    {...register("numberOfPlots")}
+                  />
+                </Field>
+                <Field className="flex-1">
+                  <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                    Amount of Property
+                  </FieldLabel>
+                  <div className="flex items-center gap-1 rounded-lg bg-[#f3f3f3] px-4">
+                    <span className="font-montserrat text-base font-bold text-[#c8c8c8]">
+                      ₦
+                    </span>
+                    <Input
+                      placeholder="15,000,000"
+                      className="h-12 border-0 bg-transparent px-0 font-montserrat text-sm text-[#0f0f0f] shadow-none placeholder:text-[#6f6d6d] focus-visible:ring-0"
+                      {...register("amountOfProperty")}
+                    />
+                  </div>
+                </Field>
               </div>
-              <Input
-                type="tel"
-                placeholder="0802 123 1234"
-                className="h-12 flex-1 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
-                {...register("phone")}
-                aria-invalid={!!errors.phone}
-              />
-            </div>
-            {errors.phone && <FieldError>{errors.phone.message}</FieldError>}
-          </Field>
 
-          {/* ── Assigned To ── */}
-          <Field>
-            <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
-              Assigned To
-            </FieldLabel>
-            <Controller
-              name="assignedTo"
-              control={control}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="h-14 w-full rounded-lg border-0 bg-[#f3f3f3] px-4 shadow-none focus:ring-0">
-                    <SelectValue placeholder="Select staff">
-                      {selectedStaff && (
-                        <div className="flex items-center gap-1">
-                          <div
-                            className="flex size-6 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white"
-                            style={{
-                              backgroundColor: selectedStaff.avatarColor,
-                            }}
-                          >
-                            {selectedStaff.initials}
-                          </div>
-                          <span className="font-montserrat text-base font-bold text-[#0f0f0f]">
-                            {selectedStaff.name}
+              {/* Outright */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-bold text-[#0f0f0f]">
+                  Outright (Please tick appropriately)
+                </FieldLabel>
+                <Controller
+                  name="outright"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex items-center gap-2">
+                      <label className="flex cursor-pointer items-center gap-2">
+                        <input
+                          type="radio"
+                          name="outright"
+                          value="Immediate (0-1 month)"
+                          checked={field.value === "Immediate (0-1 month)"}
+                          onChange={field.onChange}
+                          className="size-4 accent-[#8a38f5]"
+                        />
+                        <span className="font-montserrat text-sm text-[#0f0f0f]">
+                          Immediate (0-1 month)
+                        </span>
+                      </label>
+                    </div>
+                  )}
+                />
+              </Field>
+
+              {/* Instalments */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Instalments
+                </FieldLabel>
+                <Controller
+                  name="instalments"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex flex-wrap items-center gap-4">
+                      {instalmentOptions.map((opt) => (
+                        <label
+                          key={opt}
+                          className="flex cursor-pointer items-center gap-2"
+                        >
+                          <input
+                            type="radio"
+                            name="instalments"
+                            value={opt}
+                            checked={field.value === opt}
+                            onChange={field.onChange}
+                            className="size-4 accent-[#8a38f5]"
+                          />
+                          <span className="font-montserrat text-sm text-[#0f0f0f]">
+                            {opt}
                           </span>
-                          <Badge className="rounded-lg border-0 bg-[#ddf6e2] px-1 py-0.5 font-montserrat text-[9px] font-semibold text-[#34c759]">
-                            {selectedStaff.role}
-                          </Badge>
-                        </div>
-                      )}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {staffOptions.map((staff) => (
-                      <SelectItem key={staff.name} value={staff.name}>
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="flex size-6 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white"
-                            style={{ backgroundColor: staff.avatarColor }}
-                          >
-                            {staff.initials}
-                          </div>
-                          <span className="font-montserrat text-sm font-bold text-[#0f0f0f]">
-                            {staff.name}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                />
+              </Field>
+
+              {/* Name to be written on Documents */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Name to be written on Documents
+                </FieldLabel>
+                <Input
+                  placeholder="Enter Name"
+                  className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+                  {...register("nameOnDocuments")}
+                />
+              </Field>
+
+              {/* How did you Hear about Us? */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  How did you Hear about Us?
+                </FieldLabel>
+                <Controller
+                  name="howDidYouHear"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex flex-wrap items-center gap-4">
+                      {howHeardOptions.map((opt) => (
+                        <label
+                          key={opt}
+                          className="flex cursor-pointer items-center gap-2"
+                        >
+                          <input
+                            type="radio"
+                            name="howDidYouHear"
+                            value={opt}
+                            checked={field.value === opt}
+                            onChange={field.onChange}
+                            className="size-4 accent-[#8a38f5]"
+                          />
+                          <span className="font-montserrat text-sm text-[#0f0f0f]">
+                            {opt}
                           </span>
-                          <Badge className="rounded-lg border-0 bg-[#ddf6e2] px-1 py-0.5 font-montserrat text-[9px] font-semibold text-[#34c759]">
-                            {staff.role}
-                          </Badge>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {errors.assignedTo && (
-              <FieldError>{errors.assignedTo.message}</FieldError>
-            )}
-          </Field>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                />
+              </Field>
+            </FieldGroup>
 
-          {/* ── Interested Property ── */}
-          <Field>
-            <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
-              Interested Property
-            </FieldLabel>
-            <Controller
-              name="interestedProperty"
-              control={control}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="h-14 w-full rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm text-[#0f0f0f] shadow-none focus:ring-0">
-                    <SelectValue placeholder="Select property" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {propertyOptions.map((p) => (
-                      <SelectItem key={p} value={p}>
-                        {p}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </Field>
+            {/* ── Client Bank Details ── */}
+            <SubSectionLabel label="Client Bank Details" />
 
-          {/* ── Property Type ── */}
-          <Field>
-            <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
-              Property Type
-            </FieldLabel>
-            <Controller
-              name="propertyType"
-              control={control}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="h-14 w-full rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm text-[#0f0f0f] shadow-none focus:ring-0">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {propertyTypeOptions.map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </Field>
+            <FieldGroup>
+              {/* Bank Name */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Bank Name
+                </FieldLabel>
+                <Controller
+                  name="bankName"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value ?? ""}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger className="h-14 w-full rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm text-[#0f0f0f] shadow-none focus:ring-0">
+                        <SelectValue placeholder="Select bank" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {bankOptions.map((b) => (
+                          <SelectItem key={b} value={b}>
+                            {b}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </Field>
 
-          {/* ── Estimated Deal Value ── */}
-          <Field>
-            <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
-              Estimated Deal Value
-            </FieldLabel>
-            <div className="flex items-center gap-1 rounded-lg bg-[#f3f3f3] px-4">
-              <span className="font-montserrat text-base font-bold text-[#c8c8c8]">
-                ₦
-              </span>
-              <Input
-                placeholder="15,000,000"
-                className="h-12 border-0 bg-transparent px-0 font-montserrat text-sm text-[#0f0f0f] shadow-none placeholder:text-[#6f6d6d] focus-visible:ring-0"
-                {...register("dealValue")}
-              />
+              {/* Account Name */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Account Name
+                </FieldLabel>
+                <Input
+                  placeholder="Enter Account Name"
+                  className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+                  {...register("accountName")}
+                />
+              </Field>
+
+              {/* Account Number */}
+              <Field>
+                <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
+                  Account Number
+                </FieldLabel>
+                <Input
+                  placeholder="Enter Account Number"
+                  className="h-12 rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm font-bold text-[#0f0f0f] placeholder:font-bold placeholder:text-[#6f6d6d]"
+                  {...register("accountNumber")}
+                />
+              </Field>
+            </FieldGroup>
+
+            {/* ── Step 2 Actions ── */}
+            <div className="flex items-center justify-between">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setStep(1)}
+                className="w-31 rounded-lg border-[#8a38f5] font-montserrat text-sm font-bold text-[#8a38f5]"
+              >
+                Prev
+              </Button>
+              <Button
+                type="submit"
+                disabled={addClientMutation.isPending}
+                className="w-31 rounded-lg bg-[#8a38f5] px-1 py-2 font-montserrat text-sm font-bold text-[#f8f8f8] hover:bg-[#8a38f5]/90"
+              >
+                {addClientMutation.isPending ? "Submitting..." : "Submit"}
+              </Button>
             </div>
-          </Field>
-
-          {/* ── Sales Stage ── */}
-          <Field>
-            <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
-              Sales Stage
-            </FieldLabel>
-            <Controller
-              name="salesStage"
-              control={control}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="h-14 w-full rounded-lg border-0 bg-[#f3f3f3] px-4 font-montserrat text-sm text-[#0f0f0f] shadow-none focus:ring-0">
-                    <SelectValue placeholder="Lead" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {salesStageOptions.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </Field>
-
-          {/* ── Next Follow-Up Date ── */}
-          <Field>
-            <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
-              Next Follow-Up Date
-            </FieldLabel>
-            <div className="flex items-center justify-between rounded-lg bg-[#f3f3f3] px-4">
-              <Input
-                placeholder="Jan 17, 2026"
-                className="h-12 border-0 bg-transparent px-0 font-montserrat text-sm text-[#0f0f0f] shadow-none placeholder:text-[#6f6d6d] focus-visible:ring-0"
-                {...register("followUpDate")}
-              />
-              <Calendar className="size-6 text-[#6f6d6d]" />
-            </div>
-          </Field>
-
-          {/* ── Notes about this Client ── */}
-          <Field>
-            <FieldLabel className="font-montserrat text-base font-normal text-[#0f0f0f]">
-              Notes about this Client
-            </FieldLabel>
-            <Textarea
-              placeholder="Jan 17, 2026"
-              rows={6}
-              className="min-h-40 resize-none rounded-lg border-0 bg-[#f3f3f3] px-4 py-4 font-montserrat text-sm text-[#0f0f0f] placeholder:text-[#6f6d6d]"
-              {...register("notes")}
-            />
-          </Field>
-
-          {/* ── Submit ── */}
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              disabled={addClientMutation.isPending}
-              className="w-31 rounded-lg bg-[#8a38f5] px-1 py-2 font-montserrat text-sm font-bold text-[#f8f8f8] hover:bg-[#8a38f5]/90"
-            >
-              {addClientMutation.isPending ? "Submitting..." : "Submit"}
-            </Button>
-          </div>
-        </FieldGroup>
+          </>
+        )}
       </form>
     </CustomSheet>
   );

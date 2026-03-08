@@ -13,6 +13,10 @@ export interface OverviewData {
   active_staff_count: number;
   active_realtors_count: number;
   available_properties: number;
+  total_expenses?: number;
+  total_sold_properties?: number;
+  pending_commissions?: number;
+  pending_expense_approvals?: number;
   sales_trend: number[];
 }
 

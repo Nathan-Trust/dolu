@@ -13,6 +13,8 @@ import {
 } from "./ClientStatusBadge";
 import { ClientDetailDialogWrapper } from "./ClientDetailDialog";
 import AddClientSheet from "./AddClientSheet";
+import AddClientOptionDialog from "./AddClientOptionDialog";
+import SendSubscriptionSheet from "./SendSubscriptionSheet";
 import SuccessDialog from "@/components/shared/SuccessDialog";
 import { type UserRole } from "@/util/status";
 import { useClients } from "@/hooks/useClients";
@@ -63,6 +65,8 @@ export default function ClientsListView({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [addClientOpen, setAddClientOpen] = useState(false);
+  const [optionDialogOpen, setOptionDialogOpen] = useState(false);
+  const [subscriptionOpen, setSubscriptionOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [submittedClient, setSubmittedClient] = useState<{
     name: string;
@@ -186,7 +190,7 @@ export default function ClientsListView({
       {/* Page header */}
       <ClientsHeader
         showAddClient={canAddClient && !isReadOnly}
-        onAddClient={() => setAddClientOpen(true)}
+        onAddClient={() => setOptionDialogOpen(true)}
       />
 
       {/* Always-visible toolbar */}
@@ -194,7 +198,7 @@ export default function ClientsListView({
         <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-4 md:gap-8">
             <p className="font-montserrat text-sm font-bold text-[#0f0f0f]">
-              Clients
+              Staff
             </p>
             <SearchInput
               value={search}
@@ -258,12 +262,30 @@ export default function ClientsListView({
         onOpenChange={setDialogOpen}
       />
 
-      {/* Add client sheet */}
+      {/* Add client option dialog */}
+      <AddClientOptionDialog
+        open={optionDialogOpen}
+        onOpenChange={setOptionDialogOpen}
+        onAddManually={() => setAddClientOpen(true)}
+        onSendSubscription={() => setSubscriptionOpen(true)}
+      />
+
+      {/* Add client sheet (manual) */}
       <AddClientSheet
         open={addClientOpen}
         onOpenChange={setAddClientOpen}
         onSuccess={(client) => {
           setSubmittedClient(client);
+          setSuccessOpen(true);
+        }}
+      />
+
+      {/* Send subscription sheet */}
+      <SendSubscriptionSheet
+        open={subscriptionOpen}
+        onOpenChange={setSubscriptionOpen}
+        onSuccess={() => {
+          setSubmittedClient({ name: "Client", code: "SENT" });
           setSuccessOpen(true);
         }}
       />
