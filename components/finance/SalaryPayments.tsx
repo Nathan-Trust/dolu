@@ -27,18 +27,102 @@ interface SalaryPaymentRecord {
 /* ------------------------------------------------------------------ */
 
 const mockSalaryPaymentsData: SalaryPaymentRecord[] = [
-  { id: 1, staffName: "John Doe", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦550,000", status: "Paid" },
-  { id: 2, staffName: "Jane Smith", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦490,000", status: "Paid" },
-  { id: 3, staffName: "Mike Ross", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦370,000", status: "Pending" },
-  { id: 4, staffName: "Sarah Wilson", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦275,000", status: "Pending" },
-  { id: 5, staffName: "David Brown", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦425,000", status: "Paid" },
-  { id: 6, staffName: "Lisa Anderson", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦320,000", status: "Paid" },
-  { id: 7, staffName: "James Taylor", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦410,000", status: "Pending" },
-  { id: 8, staffName: "Emma Wilson", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦380,000", status: "Paid" },
-  { id: 9, staffName: "Robert Clark", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦450,000", status: "Pending" },
-  { id: 10, staffName: "Sophie Davis", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦290,000", status: "Paid" },
-  { id: 11, staffName: "Daniel White", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦350,000", status: "Paid" },
-  { id: 12, staffName: "Grace Martin", month: "July 2026", paymentDate: "2 Jul, 2026", netAmount: "₦310,000", status: "Pending" },
+  {
+    id: 1,
+    staffName: "John Doe",
+    month: "July 2026",
+    paymentDate: "2 Jul, 2026",
+    netAmount: "₦550,000",
+    status: "Paid",
+  },
+  {
+    id: 2,
+    staffName: "Jane Smith",
+    month: "July 2026",
+    paymentDate: "2 Jul, 2026",
+    netAmount: "₦490,000",
+    status: "Paid",
+  },
+  {
+    id: 3,
+    staffName: "Mike Ross",
+    month: "July 2026",
+    paymentDate: "2 Jul, 2026",
+    netAmount: "₦370,000",
+    status: "Pending",
+  },
+  {
+    id: 4,
+    staffName: "Sarah Wilson",
+    month: "July 2026",
+    paymentDate: "2 Jul, 2026",
+    netAmount: "₦275,000",
+    status: "Pending",
+  },
+  {
+    id: 5,
+    staffName: "David Brown",
+    month: "July 2026",
+    paymentDate: "2 Jul, 2026",
+    netAmount: "₦425,000",
+    status: "Paid",
+  },
+  {
+    id: 6,
+    staffName: "Lisa Anderson",
+    month: "July 2026",
+    paymentDate: "2 Jul, 2026",
+    netAmount: "₦320,000",
+    status: "Paid",
+  },
+  {
+    id: 7,
+    staffName: "James Taylor",
+    month: "July 2026",
+    paymentDate: "2 Jul, 2026",
+    netAmount: "₦410,000",
+    status: "Pending",
+  },
+  {
+    id: 8,
+    staffName: "Emma Wilson",
+    month: "July 2026",
+    paymentDate: "2 Jul, 2026",
+    netAmount: "₦380,000",
+    status: "Paid",
+  },
+  {
+    id: 9,
+    staffName: "Robert Clark",
+    month: "July 2026",
+    paymentDate: "2 Jul, 2026",
+    netAmount: "₦450,000",
+    status: "Pending",
+  },
+  {
+    id: 10,
+    staffName: "Sophie Davis",
+    month: "July 2026",
+    paymentDate: "2 Jul, 2026",
+    netAmount: "₦290,000",
+    status: "Paid",
+  },
+  {
+    id: 11,
+    staffName: "Daniel White",
+    month: "July 2026",
+    paymentDate: "2 Jul, 2026",
+    netAmount: "₦350,000",
+    status: "Paid",
+  },
+  {
+    id: 12,
+    staffName: "Grace Martin",
+    month: "July 2026",
+    paymentDate: "2 Jul, 2026",
+    netAmount: "₦310,000",
+    status: "Pending",
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -100,7 +184,13 @@ const headerKeyMap: Record<string, string> = {
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export default function SalaryPayments() {
+interface SalaryPaymentsProps {
+  canCreate?: boolean;
+}
+
+export default function SalaryPayments({
+  canCreate = false,
+}: SalaryPaymentsProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<(string | number)[]>([]);
   const [addSalaryOpen, setAddSalaryOpen] = useState(false);
@@ -136,13 +226,15 @@ export default function SalaryPayments() {
     <div className="flex flex-col gap-4">
       {/* Action button */}
       <div className="flex items-end">
-        <Button
-          onClick={() => setAddSalaryOpen(true)}
-          className="gap-1 rounded-lg bg-[#f3f3f3] px-2 py-1 font-montserrat text-sm font-bold text-[#0f0f0f] hover:bg-[#e0e0e0]"
-        >
-          <Plus size={18} />
-          Add Staff Salary Module
-        </Button>
+        {canCreate && (
+          <Button
+            onClick={() => setAddSalaryOpen(true)}
+            className="gap-1 rounded-lg bg-[#f3f3f3] px-2 py-1 font-montserrat text-sm font-bold text-[#0f0f0f] hover:bg-[#e0e0e0]"
+          >
+            <Plus size={18} />
+            Add Staff Salary Module
+          </Button>
+        )}
       </div>
 
       {/* Summary stats */}

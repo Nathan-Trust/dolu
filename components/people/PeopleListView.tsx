@@ -149,14 +149,11 @@ const performanceOptions = [
 
 interface PeopleListViewProps {
   role: UserRole;
-  isReadOnly?: boolean;
 }
 
 export default function PeopleListView({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   role,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  isReadOnly = false,
 }: PeopleListViewProps) {
   const [activeTab, setActiveTab] = useState(0);
   const [search, setSearch] = useState("");

@@ -1,8 +1,29 @@
 "use client";
 
 import Commissions from "@/components/finance/Commissions";
+import { useRolePermissions } from "@/hooks/useRolePermissions";
+import type { UserRole } from "@/util/status";
 
-export default function CommissionsClient() {
+interface CommissionsClientProps {
+  role: UserRole;
+}
+
+export default function CommissionsClient({ role }: CommissionsClientProps) {
+  const { canView, canEdit } = useRolePermissions(role);
+
+  if (!canView("Finance")) {
+    return (
+      <div className="flex flex-col gap-6">
+        <h1 className="font-montserrat text-lg font-bold text-[#0f0f0f]">
+          Finance
+        </h1>
+        <p className="font-montserrat text-sm text-[#6f6d6d]">
+          You do not have permission to view commissions.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {/* Page header with breadcrumb */}
@@ -17,7 +38,7 @@ export default function CommissionsClient() {
         </p>
       </div>
 
-      <Commissions />
+      <Commissions canEdit={canEdit("Finance")} />
     </div>
   );
 }

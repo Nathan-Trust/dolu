@@ -142,13 +142,13 @@ const statusOptions = [
 interface InventoryListViewProps {
   role: UserRole;
   estateId: string;
-  isReadOnly?: boolean;
+  canCreate?: boolean;
 }
 
 export default function InventoryListView({
   role,
   estateId,
-  isReadOnly = false,
+  canCreate = false,
 }: InventoryListViewProps) {
   const router = useRouter();
   const params = useParams();
@@ -189,8 +189,6 @@ export default function InventoryListView({
       };
     });
   }, [allEstatesData]);
-
-  const canAddUnit = role === "admin";
 
   /* Data filtering */
   const baseUnits = estateData?.properties ?? [];
@@ -282,7 +280,7 @@ export default function InventoryListView({
           </p>
         </div>
 
-        {canAddUnit && !isReadOnly && (
+        {canCreate && (
           <div className="flex justify-end">
             <Button
               onClick={() => setAddUnitOpen(true)}

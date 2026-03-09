@@ -145,7 +145,11 @@ const headerKeyMap: Record<string, string> = {
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export default function Procurements() {
+interface ProcurementsProps {
+  canCreate?: boolean;
+}
+
+export default function Procurements({ canCreate = false }: ProcurementsProps) {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<(string | number)[]>([]);
 
@@ -176,10 +180,12 @@ export default function Procurements() {
     <div className="flex flex-col gap-4">
       {/* Action buttons */}
       <div className="flex items-end gap-2">
-        <Button className="gap-1 rounded-lg bg-[#f3f3f3] px-2 py-1 font-montserrat text-sm font-bold text-[#0f0f0f] hover:bg-[#e0e0e0]">
-          <Plus size={18} />
-          Add Expense
-        </Button>
+        {canCreate && (
+          <Button className="gap-1 rounded-lg bg-[#f3f3f3] px-2 py-1 font-montserrat text-sm font-bold text-[#0f0f0f] hover:bg-[#e0e0e0]">
+            <Plus size={18} />
+            Add Expense
+          </Button>
+        )}
         <Button className="gap-1 rounded-lg bg-[#8a38f5] px-2 py-1 font-montserrat text-sm font-bold text-[#f8f8f8] hover:bg-[#7828e0]">
           Download Report
           <Download size={18} />

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useMemo } from "react";
@@ -54,12 +55,12 @@ const inactivityOptions = [
 
 interface ClientsListViewProps {
   role: UserRole;
-  isReadOnly?: boolean;
+  canCreate?: boolean;
 }
 
 export default function ClientsListView({
   role,
-  isReadOnly = false,
+  canCreate = false,
 }: ClientsListViewProps) {
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -183,13 +184,11 @@ export default function ClientsListView({
     Status: "status",
   };
 
-  const canAddClient = role === "admin" || role === "staff";
-
   return (
     <div className="flex flex-col gap-6">
       {/* Page header */}
       <ClientsHeader
-        showAddClient={canAddClient && !isReadOnly}
+        showAddClient={canCreate}
         onAddClient={() => setOptionDialogOpen(true)}
       />
 

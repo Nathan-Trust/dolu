@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { type UserRole } from "@/util/status";
 import SubmitReportForm from "./SubmitReportForm";
 import ViewReportsTab from "./ViewReportsTab";
 
@@ -10,25 +9,20 @@ import ViewReportsTab from "./ViewReportsTab";
 /* ------------------------------------------------------------------ */
 
 interface ReportsPageViewProps {
-  role: UserRole;
+  canCreate?: boolean;
 }
 
-export default function ReportsPageView({ role }: ReportsPageViewProps) {
+export default function ReportsPageView({
+  canCreate = false,
+}: ReportsPageViewProps) {
   const [activeTab, setActiveTab] = useState<"submit" | "view">("submit");
 
   // Count badge for View Reports tab (mock)
   const viewReportsCount = 3;
 
-  // Roles that can submit reports (staff/realtor submit their own)
-  const canSubmit = ["staff", "realtor"].includes(role);
-
-  // Roles that primarily view reports (admin/chairman/manager/finance/procurement)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const canView = !canSubmit;
-
-  // If user can only view (not submit), default to view tab
+  // If user cannot create (submit) reports, default to view tab
   const effectiveTab =
-    !canSubmit && activeTab === "submit" ? "view" : activeTab;
+    !canCreate && activeTab === "submit" ? "view" : activeTab;
 
   return (
     <div className="flex flex-col gap-6">
@@ -71,9 +65,9 @@ export default function ReportsPageView({ role }: ReportsPageViewProps) {
 
       {/* Tab Content */}
       <div className="rounded-lg bg-[#f8f8f8] p-4">
-        {effectiveTab === "submit" && canSubmit && <SubmitReportForm />}
+        {effectiveTab === "submit" && canCreate && <SubmitReportForm />}
         {effectiveTab === "view" && <ViewReportsTab />}
-        {effectiveTab === "submit" && !canSubmit && <ViewReportsTab />}
+        {effectiveTab === "submit" && !canCreate && <ViewReportsTab />}
       </div>
     </div>
   );

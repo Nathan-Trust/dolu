@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { isValidRole, getRoleConfig, type UserRole } from "@/util/status";
 import FinanceClient from "./client";
 
@@ -31,10 +31,5 @@ export default async function FinancePage({ params }: FinancePageProps) {
     notFound();
   }
 
-  // Realtors have no Finance access
-  if (role === "realtor") {
-    redirect(`/dashboard/${role}/overview`);
-  }
-
-  return <FinanceClient />;
+  return <FinanceClient role={role as UserRole} />;
 }

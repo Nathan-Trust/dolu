@@ -1,8 +1,29 @@
 "use client";
 
 import SalesIncome from "@/components/finance/SalesIncome";
+import { useRolePermissions } from "@/hooks/useRolePermissions";
+import type { UserRole } from "@/util/status";
 
-export default function SalesIncomeClient() {
+interface SalesIncomeClientProps {
+  role: UserRole;
+}
+
+export default function SalesIncomeClient({ role }: SalesIncomeClientProps) {
+  const { canView } = useRolePermissions(role);
+
+  if (!canView("Finance")) {
+    return (
+      <div className="flex flex-col gap-6">
+        <h1 className="font-montserrat text-lg font-bold text-[#0f0f0f]">
+          Finance
+        </h1>
+        <p className="font-montserrat text-sm text-[#6f6d6d]">
+          You do not have permission to view sales income.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {/* Page header with breadcrumb */}

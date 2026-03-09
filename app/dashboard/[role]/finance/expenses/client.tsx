@@ -3,12 +3,32 @@
 import { useState } from "react";
 import Procurements from "@/components/finance/Procurements";
 import SalaryPayments from "@/components/finance/SalaryPayments";
+import { useRolePermissions } from "@/hooks/useRolePermissions";
+import type { UserRole } from "@/util/status";
 
 const subTabs = ["Procurements", "Salary Payments"] as const;
 type ExpensesSubTab = (typeof subTabs)[number];
 
-export default function ExpensesClient() {
+interface ExpensesClientProps {
+  role: UserRole;
+}
+
+export default function ExpensesClient({ role }: ExpensesClientProps) {
+  const { canView, canCreate } = useRolePermissions(role);
   const [activeTab, setActiveTab] = useState<ExpensesSubTab>("Procurements");
+
+  if (!canView("Finance")) {
+    return (
+      <div className="flex flex-col gap-6">
+        <h1 className="font-montserrat text-lg font-bold text-[#0f0f0f]">
+          Finance
+        </h1>
+        <p className="font-montserrat text-sm text-[#6f6d6d]">
+          You do not have permission to view expenses.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -42,8 +62,12 @@ export default function ExpensesClient() {
       </div>
 
       {/* Tab content */}
-      {activeTab === "Procurements" && <Procurements />}
-      {activeTab === "Salary Payments" && <SalaryPayments />}
+      {activeTab === "Procurements" && (
+        <Procurements canCreate={canCreate("Finance")} />
+      )}
+      {activeTab === "Salary Payments" && (
+        <SalaryPayments canCreate={canCreate("Finance")} />
+      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import AccessControl from "@/components/settings/AccessControl";
 import SystemPreferences from "@/components/settings/SystemPreferences";
 import Security from "@/components/settings/Security";
 import { type UserRole } from "@/util/status";
+import { useRolePermissions } from "@/hooks/useRolePermissions";
 
 const allSubTabs = [
   { label: "Users & Roles", slug: "user-roles" },
@@ -23,6 +24,9 @@ interface SettingsClientProps {
 }
 
 export default function SettingsClient({ role }: SettingsClientProps) {
+  const { canView, canEdit } = useRolePermissions(role);
+  const settingsViewable = canView("Settings");
+  const settingsEditable = canEdit("Settings");
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -38,6 +42,21 @@ export default function SettingsClient({ role }: SettingsClientProps) {
     params.set("tab", slug);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
+
+  if (!settingsViewable) {
+    return (
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center justify-between">
+          <h1 className="font-montserrat text-lg font-bold text-[#0f0f0f]">
+            Settings
+          </h1>
+        </div>
+        <p className="font-montserrat text-sm text-[#6f6d6d]">
+          You do not have permission to view settings.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -70,7 +89,14 @@ export default function SettingsClient({ role }: SettingsClientProps) {
 
       {/* Tab content */}
       {activeSlug === "user-roles" && <UsersAndRoles role={role} />}
-      {activeSlug === "access-control" && <AccessControl />}
+      {activeSlug === "access-control" &&
+        (settingsEditable ? (
+          <AccessControl />
+        ) : (
+          <p className="font-montserrat text-sm text-[#6f6d6d]">
+            You do not have permission to manage access control.
+          </p>
+        ))}
       {activeSlug === "system-preferences" && <SystemPreferences />}
       {activeSlug === "security" && <Security />}
       {activeSlug === "audit-logs" && (

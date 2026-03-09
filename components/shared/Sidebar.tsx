@@ -18,6 +18,8 @@ import {
 import { RoleBadge } from "@/components/shared/RoleBadge";
 import { type UserRole } from "@/util/status";
 import { useStore } from "@/store/user-store";
+import { useRolePermissions } from "@/hooks/useRolePermissions";
+import type { UIModule } from "@/util/permissions";
 
 interface SidebarProps {
   role: UserRole;
@@ -30,6 +32,8 @@ interface MenuItem {
   label: string;
   href?: string;
   subItems?: { label: string; href: string }[];
+  /** Permission module used to check canView — items without a module are always visible */
+  module?: UIModule;
 }
 
 const getMenuItems = (role: UserRole): MenuItem[] => [
@@ -37,60 +41,79 @@ const getMenuItems = (role: UserRole): MenuItem[] => [
     icon: ChartSquare,
     label: "Overview",
     href: `/dashboard/${role}/overview`,
+    module: "Overview",
   },
-  { icon: UserId, label: "People", href: `/dashboard/${role}/people` },
-  { icon: GraphUp, label: "Reports", href: `/dashboard/${role}/reports` },
-  { icon: UsersGroupTwoRounded, label: "Clients", href: `/dashboard/${role}/clients` },
-  { icon: HomeAddAngle, label: "Properties", href: `/dashboard/${role}/properties` },
-  // Finance is hidden for realtors
-  ...(role !== "realtor"
-    ? [
-        {
-          icon: MoneyBag,
-          label: "Finance",
-          subItems: [
-            { label: "Overview", href: `/dashboard/${role}/finance` },
-            // Chairman sees Overview only; Admin sees all; Staff sees Sales Income
-            ...(role === "admin"
-              ? [
-                  {
-                    label: "Sales Income",
-                    href: `/dashboard/${role}/finance/sales-income`,
-                  },
-                  {
-                    label: "Commissions",
-                    href: `/dashboard/${role}/finance/commissions`,
-                  },
-                  {
-                    label: "Expenses",
-                    href: `/dashboard/${role}/finance/expenses`,
-                  },
-                  {
-                    label: "Invoices",
-                    href: `/dashboard/${role}/finance/invoices`,
-                  },
-                ]
-              : role === "staff"
-                ? [
-                    {
-                      label: "Sales Income",
-                      href: `/dashboard/${role}/finance/sales-income`,
-                    },
-                  ]
-                : []),
-          ],
-        },
-      ]
-    : []),
-  { icon: SolarMap, label: "Map", href: `/dashboard/${role}/map` },
-  { icon: SettingsMinimalistic, label: "Settings", href: `/dashboard/${role}/settings` },
+  {
+    icon: UserId,
+    label: "People",
+    href: `/dashboard/${role}/people`,
+    module: "People",
+  },
+  {
+    icon: GraphUp,
+    label: "Reports",
+    href: `/dashboard/${role}/reports`,
+    module: "Reports",
+  },
+  {
+    icon: UsersGroupTwoRounded,
+    label: "Clients",
+    href: `/dashboard/${role}/clients`,
+    module: "Clients",
+  },
+  {
+    icon: HomeAddAngle,
+    label: "Properties",
+    href: `/dashboard/${role}/properties`,
+    module: "Properties",
+  },
+  {
+    icon: MoneyBag,
+    label: "Finance",
+    module: "Finance",
+    subItems: [
+      { label: "Overview", href: `/dashboard/${role}/finance` },
+      {
+        label: "Sales Income",
+        href: `/dashboard/${role}/finance/sales-income`,
+      },
+      {
+        label: "Commissions",
+        href: `/dashboard/${role}/finance/commissions`,
+      },
+      {
+        label: "Expenses",
+        href: `/dashboard/${role}/finance/expenses`,
+      },
+      {
+        label: "Invoices",
+        href: `/dashboard/${role}/finance/invoices`,
+      },
+    ],
+  },
+  {
+    icon: SolarMap,
+    label: "Map",
+    href: `/dashboard/${role}/map`,
+    module: "Maps",
+  },
+  {
+    icon: SettingsMinimalistic,
+    label: "Settings",
+    href: `/dashboard/${role}/settings`,
+    module: "Settings",
+  },
 ];
 
 export default function Sidebar({ role, onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { userData } = useStore();
-  const menuItems = getMenuItems(role);
+  const { canView } = useRolePermissions(role);
+  const allMenuItems = getMenuItems(role);
+  const menuItems = allMenuItems.filter(
+    (item) => !item.module || canView(item.module),
+  );
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
   const userName = userData
@@ -258,7 +281,10 @@ export default function Sidebar({ role, onNavigate }: SidebarProps) {
             <span className="font-montserrat text-base font-normal text-[#f3f3f3]">
               Log Out
             </span>
-            <AltArrowRight weight="BoldDuotone" className="ml-auto size-6 text-[#f3f3f3]" />
+            <AltArrowRight
+              weight="BoldDuotone"
+              className="ml-auto size-6 text-[#f3f3f3]"
+            />
           </button>
         </div>
       </div>

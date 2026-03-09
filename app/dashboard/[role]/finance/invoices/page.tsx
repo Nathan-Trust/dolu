@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { isValidRole, getRoleConfig, type UserRole } from "@/util/status";
 import InvoicesClient from "./client";
 
@@ -31,10 +31,5 @@ export default async function InvoicesPage({ params }: InvoicesPageProps) {
     notFound();
   }
 
-  // Only admin can access Invoices
-  if (role !== "admin") {
-    redirect(`/dashboard/${role}/finance`);
-  }
-
-  return <InvoicesClient />;
+  return <InvoicesClient role={role as UserRole} />;
 }

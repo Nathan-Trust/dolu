@@ -124,12 +124,12 @@ const availabilityOptions = [
 
 interface PropertiesListViewProps {
   role: UserRole;
-  isReadOnly?: boolean;
+  canCreate?: boolean;
 }
 
 export default function PropertiesListView({
   role,
-  isReadOnly = false,
+  canCreate = false,
 }: PropertiesListViewProps) {
   const router = useRouter();
   const params = useParams();
@@ -236,13 +236,11 @@ export default function PropertiesListView({
     Status: "status",
   };
 
-  const canAddEstate = role === "admin";
-
   return (
     <div className="flex flex-col gap-6">
       {/* Page header */}
       <PropertiesHeader
-        showAddEstate={canAddEstate && !isReadOnly}
+        showAddEstate={canCreate}
         onAddEstate={() => setAddEstateOpen(true)}
       />
 

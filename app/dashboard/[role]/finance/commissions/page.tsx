@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { isValidRole, getRoleConfig, type UserRole } from "@/util/status";
 import CommissionsClient from "./client";
 
@@ -33,10 +33,5 @@ export default async function CommissionsPage({
     notFound();
   }
 
-  // Only admin can access Commissions
-  if (role !== "admin") {
-    redirect(`/dashboard/${role}/finance`);
-  }
-
-  return <CommissionsClient />;
+  return <CommissionsClient role={role as UserRole} />;
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { isValidRole, getRoleConfig, type UserRole } from "@/util/status";
 import SalesIncomeClient from "./client";
 
@@ -33,10 +33,5 @@ export default async function SalesIncomePage({
     notFound();
   }
 
-  // Only admin and staff can access Sales Income
-  if (role === "realtor" || role === "chairman" || role === "manager") {
-    redirect(`/dashboard/${role}/finance`);
-  }
-
-  return <SalesIncomeClient />;
+  return <SalesIncomeClient role={role as UserRole} />;
 }

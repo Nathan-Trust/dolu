@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { isValidRole, getRoleConfig, type UserRole } from "@/util/status";
 import ExpensesClient from "./client";
 
@@ -31,10 +31,5 @@ export default async function ExpensesPage({ params }: ExpensesPageProps) {
     notFound();
   }
 
-  // Only admin can access Expenses
-  if (role !== "admin") {
-    redirect(`/dashboard/${role}/finance`);
-  }
-
-  return <ExpensesClient />;
+  return <ExpensesClient role={role as UserRole} />;
 }

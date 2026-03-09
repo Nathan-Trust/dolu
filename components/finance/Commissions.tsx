@@ -28,19 +28,123 @@ interface CommissionRecord {
 /* ------------------------------------------------------------------ */
 
 const mockCommissionsData: CommissionRecord[] = [
-  { id: 1, realtorName: "Sodiq Egbon", property: "001", client: "Peter Abbey", saleValue: "₦15,000,000", commission: "₦750,000", status: "Paid" },
-  { id: 2, realtorName: "Sodiq Egbon", property: "001", client: "Peter Abbey", saleValue: "₦15,000,000", commission: "₦750,000", status: "Paid" },
-  { id: 3, realtorName: "Sodiq Egbon", property: "001", client: "Peter Abbey", saleValue: "₦15,000,000", commission: "₦750,000", status: "Pending" },
-  { id: 4, realtorName: "Sodiq Egbon", property: "001", client: "Peter Abbey", saleValue: "₦15,000,000", commission: "₦750,000", status: "Paid" },
-  { id: 5, realtorName: "Sodiq Egbon", property: "001", client: "Peter Abbey", saleValue: "₦15,000,000", commission: "₦750,000", status: "Overdue" },
-  { id: 6, realtorName: "Sodiq Egbon", property: "001", client: "Peter Abbey", saleValue: "₦15,000,000", commission: "₦750,000", status: "Paid" },
-  { id: 7, realtorName: "Sodiq Egbon", property: "001", client: "Peter Abbey", saleValue: "₦15,000,000", commission: "₦750,000", status: "Pending" },
-  { id: 8, realtorName: "Sodiq Egbon", property: "001", client: "Peter Abbey", saleValue: "₦15,000,000", commission: "₦750,000", status: "Overdue" },
-  { id: 9, realtorName: "Sodiq Egbon", property: "001", client: "Peter Abbey", saleValue: "₦15,000,000", commission: "₦750,000", status: "Pending" },
-  { id: 10, realtorName: "Sodiq Egbon", property: "001", client: "Peter Abbey", saleValue: "₦15,000,000", commission: "₦750,000", status: "Pending" },
-  { id: 11, realtorName: "Sodiq Egbon", property: "001", client: "Peter Abbey", saleValue: "₦15,000,000", commission: "₦750,000", status: "Overdue" },
-  { id: 12, realtorName: "Sodiq Egbon", property: "001", client: "Peter Abbey", saleValue: "₦15,000,000", commission: "₦750,000", status: "Overdue" },
-  { id: 13, realtorName: "Sodiq Egbon", property: "001", client: "Peter Abbey", saleValue: "₦15,000,000", commission: "₦750,000", status: "Paid" },
+  {
+    id: 1,
+    realtorName: "Sodiq Egbon",
+    property: "001",
+    client: "Peter Abbey",
+    saleValue: "₦15,000,000",
+    commission: "₦750,000",
+    status: "Paid",
+  },
+  {
+    id: 2,
+    realtorName: "Sodiq Egbon",
+    property: "001",
+    client: "Peter Abbey",
+    saleValue: "₦15,000,000",
+    commission: "₦750,000",
+    status: "Paid",
+  },
+  {
+    id: 3,
+    realtorName: "Sodiq Egbon",
+    property: "001",
+    client: "Peter Abbey",
+    saleValue: "₦15,000,000",
+    commission: "₦750,000",
+    status: "Pending",
+  },
+  {
+    id: 4,
+    realtorName: "Sodiq Egbon",
+    property: "001",
+    client: "Peter Abbey",
+    saleValue: "₦15,000,000",
+    commission: "₦750,000",
+    status: "Paid",
+  },
+  {
+    id: 5,
+    realtorName: "Sodiq Egbon",
+    property: "001",
+    client: "Peter Abbey",
+    saleValue: "₦15,000,000",
+    commission: "₦750,000",
+    status: "Overdue",
+  },
+  {
+    id: 6,
+    realtorName: "Sodiq Egbon",
+    property: "001",
+    client: "Peter Abbey",
+    saleValue: "₦15,000,000",
+    commission: "₦750,000",
+    status: "Paid",
+  },
+  {
+    id: 7,
+    realtorName: "Sodiq Egbon",
+    property: "001",
+    client: "Peter Abbey",
+    saleValue: "₦15,000,000",
+    commission: "₦750,000",
+    status: "Pending",
+  },
+  {
+    id: 8,
+    realtorName: "Sodiq Egbon",
+    property: "001",
+    client: "Peter Abbey",
+    saleValue: "₦15,000,000",
+    commission: "₦750,000",
+    status: "Overdue",
+  },
+  {
+    id: 9,
+    realtorName: "Sodiq Egbon",
+    property: "001",
+    client: "Peter Abbey",
+    saleValue: "₦15,000,000",
+    commission: "₦750,000",
+    status: "Pending",
+  },
+  {
+    id: 10,
+    realtorName: "Sodiq Egbon",
+    property: "001",
+    client: "Peter Abbey",
+    saleValue: "₦15,000,000",
+    commission: "₦750,000",
+    status: "Pending",
+  },
+  {
+    id: 11,
+    realtorName: "Sodiq Egbon",
+    property: "001",
+    client: "Peter Abbey",
+    saleValue: "₦15,000,000",
+    commission: "₦750,000",
+    status: "Overdue",
+  },
+  {
+    id: 12,
+    realtorName: "Sodiq Egbon",
+    property: "001",
+    client: "Peter Abbey",
+    saleValue: "₦15,000,000",
+    commission: "₦750,000",
+    status: "Overdue",
+  },
+  {
+    id: 13,
+    realtorName: "Sodiq Egbon",
+    property: "001",
+    client: "Peter Abbey",
+    saleValue: "₦15,000,000",
+    commission: "₦750,000",
+    status: "Paid",
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -111,7 +215,11 @@ const headerKeyMap: Record<string, string> = {
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export default function Commissions() {
+interface CommissionsProps {
+  canEdit?: boolean;
+}
+
+export default function Commissions({ canEdit = false }: CommissionsProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<(string | number)[]>([]);
   const [configureOpen, setConfigureOpen] = useState(false);
@@ -148,13 +256,15 @@ export default function Commissions() {
     <div className="flex flex-col gap-4">
       {/* Action buttons */}
       <div className="flex items-end gap-2">
-        <Button
-          onClick={() => setConfigureOpen(true)}
-          className="gap-1 rounded-lg bg-[#f3f3f3] px-2 py-1 font-montserrat text-sm font-bold text-[#0f0f0f] hover:bg-[#e0e0e0]"
-        >
-          Configure Commissions
-          <SlidersHorizontal size={18} />
-        </Button>
+        {canEdit && (
+          <Button
+            onClick={() => setConfigureOpen(true)}
+            className="gap-1 rounded-lg bg-[#f3f3f3] px-2 py-1 font-montserrat text-sm font-bold text-[#0f0f0f] hover:bg-[#e0e0e0]"
+          >
+            Configure Commissions
+            <SlidersHorizontal size={18} />
+          </Button>
+        )}
         <Button className="gap-1 rounded-lg bg-[#8a38f5] px-2 py-1 font-montserrat text-sm font-bold text-[#f8f8f8] hover:bg-[#7828e0]">
           Download Report
           <Download size={18} />
@@ -173,7 +283,9 @@ export default function Commissions() {
         </div>
         <div className="flex items-center gap-4 font-montserrat text-sm text-[#0f0f0f]">
           <span className="font-normal">Total Commissions Pending</span>
-          <span className="font-bold">{summaryStats.totalCommissionsPending}</span>
+          <span className="font-bold">
+            {summaryStats.totalCommissionsPending}
+          </span>
         </div>
       </div>
 

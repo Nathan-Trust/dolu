@@ -5,6 +5,7 @@ import { type UserRole } from "@/util/status";
 import SearchInput from "@/components/shared/CustomSearchInput";
 import CustomMultiSelectFilter from "@/components/shared/CustomMultiSelectFilter";
 import MapView, { type EstateMarker } from "@/components/map/MapView";
+import { useRolePermissions } from "@/hooks/useRolePermissions";
 
 /* ------------------------------------------------------------------ */
 /*  Mock estates – each role sees a subset                             */
@@ -185,8 +186,22 @@ function useFiltersForRole(role: UserRole, estates: EstateMarker[]) {
 /* ------------------------------------------------------------------ */
 
 export default function MapClient({ role }: { role: UserRole }) {
+  const { canView, canEdit } = useRolePermissions(role);
   const roleEstates = useMemo(() => getEstatesForRole(role), [role]);
-  const canOpenDetail = role === "admin";
+  const canOpenDetail = canEdit("Maps");
+
+  if (!canView("Maps")) {
+    return (
+      <div className="flex flex-col gap-6">
+        <h1 className="font-montserrat text-lg font-bold text-[#0f0f0f]">
+          Maps
+        </h1>
+        <p className="font-montserrat text-sm text-[#6f6d6d]">
+          You do not have permission to view the map.
+        </p>
+      </div>
+    );
+  }
 
   /* Filters */
   const [search, setSearch] = useState("");
