@@ -49,6 +49,9 @@ const unitTypeOptions = [
   { label: "1 Bedroom Flat", value: "1 Bedroom Flat" },
   { label: "2 Bedroom Flat", value: "2 Bedroom Flat" },
   { label: "Penthouse", value: "Penthouse" },
+   { label: "Single Unit", value: "Single Unit" },
+  { label: "Double Unit", value: "Double Unit" },
+  { label: "Custom Unit", value: "Custom Unit" },
 ];
 
 const clientOptions = [
