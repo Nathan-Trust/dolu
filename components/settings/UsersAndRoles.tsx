@@ -356,6 +356,7 @@ const categoryOptions = [
   { label: "Manager", value: "manager" },
   { label: "Procurement", value: "procurement" },
   { label: "Finance", value: "finance" },
+  { label: "Sales", value: "sales" },
 ];
 
 /* ------------------------------------------------------------------ */

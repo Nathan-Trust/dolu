@@ -19,6 +19,7 @@ const peopleByRole: Record<
   manager: PeopleListView,
   procurement: PeopleListView,
   finance: PeopleListView,
+  sales: PeopleListView,
 };
 
 export default function PeopleClient({ role }: PeopleClientProps) {
