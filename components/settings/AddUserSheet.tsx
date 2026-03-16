@@ -42,21 +42,6 @@ interface AddUserSheetProps {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Fallback role options (used when API hasn't loaded yet)             */
-/* ------------------------------------------------------------------ */
-
-const fallbackRoleOptions: { label: string; value: UserRole }[] = [
-  { label: "Chairman", value: "chairman" },
-  { label: "Admin", value: "admin" },
-  { label: "Staff", value: "staff" },
-  { label: "Realtor", value: "realtor" },
-  { label: "Manager", value: "manager" },
-  { label: "Procurement", value: "procurement" },
-  { label: "Finance", value: "finance" },
-  { label: "Sales", value: "sales" },
-];
-
-/* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -71,14 +56,12 @@ export default function AddUserSheet({
   /* Fetch roles from API */
   const { data: apiRoles } = useRoles();
 
-  /* Build role options: prefer API data, fallback to static list */
-  const roleOptions = apiRoles
-    ? apiRoles.map((r) => ({
-        label: r.name,
-        value: r.name.toLowerCase() as UserRole,
-        id: r.id,
-      }))
-    : fallbackRoleOptions.map((r) => ({ ...r, id: 0 }));
+  /* Build role options from API data */
+  const roleOptions = (apiRoles ?? []).map((r) => ({
+    label: r.name.charAt(0).toUpperCase() + r.name.slice(1),
+    value: r.name.toLowerCase() as UserRole,
+    id: r.id,
+  }));
 
   const {
     register,
