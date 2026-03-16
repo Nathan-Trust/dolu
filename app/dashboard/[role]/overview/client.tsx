@@ -32,6 +32,7 @@ const overviewByRole: Record<
   manager: ManagerOverview,
   procurement: ProcurementOverview,
   finance: FinanceOverview,
+  sales: StaffOverview,
 };
 
 export default function OverviewClient({ role }: OverviewClientProps) {

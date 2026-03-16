@@ -341,6 +341,7 @@ const avatarColors: Record<UserRole, string> = {
   manager: "#ff6b35",
   procurement: "#e91e63",
   finance: "#009688",
+  sales: "#e6a817",
 };
 
 /* ------------------------------------------------------------------ */

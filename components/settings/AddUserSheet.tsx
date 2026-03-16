@@ -51,6 +51,9 @@ const fallbackRoleOptions: { label: string; value: UserRole }[] = [
   { label: "Staff", value: "staff" },
   { label: "Realtor", value: "realtor" },
   { label: "Manager", value: "manager" },
+  { label: "Procurement", value: "procurement" },
+  { label: "Finance", value: "finance" },
+  { label: "Sales", value: "sales" },
 ];
 
 /* ------------------------------------------------------------------ */

@@ -36,7 +36,16 @@ type Module = (typeof modules)[number];
 const permissions = ["View", "Create", "Edit", "Delete"] as const;
 type Permission = (typeof permissions)[number];
 
-const roles: UserRole[] = ["chairman", "admin", "staff", "realtor"];
+const roles: UserRole[] = [
+  "chairman",
+  "admin",
+  "staff",
+  "realtor",
+  "manager",
+  "procurement",
+  "finance",
+  "sales",
+];
 
 /* ------------------------------------------------------------------ */
 /*  Default permissions (matching Figma screenshot)                    */
@@ -115,6 +124,16 @@ const defaultPermissions: Record<UserRole, PermissionMap> = {
     Reports: { View: true, Create: true, Edit: false, Delete: false },
     Settings: { View: false, Create: false, Edit: false, Delete: false },
   },
+  sales: {
+    Overview: { View: true, Create: false, Edit: false, Delete: false },
+    People: { View: false, Create: false, Edit: false, Delete: false },
+    Clients: { View: true, Create: true, Edit: true, Delete: false },
+    Properties: { View: true, Create: false, Edit: false, Delete: false },
+    Finance: { View: false, Create: false, Edit: false, Delete: false },
+    Maps: { View: true, Create: false, Edit: false, Delete: false },
+    Reports: { View: true, Create: true, Edit: false, Delete: false },
+    Settings: { View: false, Create: false, Edit: false, Delete: false },
+  },
 };
 
 /* Deep-clone helper to avoid mutating the default object */
@@ -136,6 +155,7 @@ const roleBadgeBg: Record<UserRole, string> = {
   manager: getRoleConfig("manager").bgColor,
   procurement: getRoleConfig("procurement").bgColor,
   finance: getRoleConfig("finance").bgColor,
+  sales: getRoleConfig("sales").bgColor,
 };
 
 /* ------------------------------------------------------------------ */

@@ -5,7 +5,8 @@ export type UserRole =
   | "realtor"
   | "manager"
   | "procurement"
-  | "finance";
+  | "finance"
+  | "sales";
 
 export interface RoleConfig {
   label: string;
@@ -61,6 +62,12 @@ export const roleConfigs: Record<UserRole, RoleConfig> = {
     description:
       "You manage revenue tracking, expenses, salaries, and financial reporting.",
   },
+  sales: {
+    label: "Sales",
+    bgColor: "#FFF3D9",
+    textColor: "#E6A817",
+    description: "You manage sales activities and client acquisitions.",
+  },
 };
 
 export function getRoleConfig(role: UserRole): RoleConfig {
@@ -76,5 +83,6 @@ export function isValidRole(role: string): role is UserRole {
     "manager",
     "procurement",
     "finance",
+    "sales",
   ].includes(role);
 }
